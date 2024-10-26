@@ -1,205 +1,84 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import './payment.css';
+import React, { useState } from 'react';
+import './page.css';
 
-const PaymentPage = () => {
-  const router = useRouter();
-  const [openInput, setOpenInput] = useState<string | null>(null);
-  const [selectedPayment, setSelectedPayment] = useState<string>('');
-  const [paymentAddress, setPaymentAddress] = useState<string>('');
-  const [isConnected, setIsConnected] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+const PaymentOptions: React.FC = () => {
+  const paymentMethods = [
+    {
+      id: 'paypal',
+      label: 'PayPal',
+      placeholder: 'Enter PayPal address',
+      image: 'https://storage.googleapis.com/a1aa/image/LM00lHy4e4VEfEwshfXBUMcJYM0B328inIsGRj7TYfhafrHdC.jpg',
+    },
+    {
+      id: 'googlepay',
+      label: 'Google Pay',
+      placeholder: 'Enter Google Pay address',
+      image: 'https://storage.googleapis.com/a1aa/image/SvKY98RDkvYhENmLE9Ukt5u94yGsWNixkJM5U691UbdeveoTA.jpg',
+    },
+    {
+      id: 'applepay',
+      label: 'Apple Pay',
+      placeholder: 'Enter Apple Pay address',
+      image: 'https://storage.googleapis.com/a1aa/image/YqpCh7xg0Ab9N17SKmdPm6cBYfCqsSwebOnsx553IeS1f1jOB.jpg',
+    },
+    {
+      id: 'mastercard',
+      label: '•••• 2766',
+      placeholder: 'Enter Mastercard details',
+      image: 'https://storage.googleapis.com/a1aa/image/XBvmqXf3efCHMIrLcbgQfNciUh1kUfjmogYgjIg8xeoIeveoTA.jpg',
+    },
+  ];
 
-  useEffect(() => {
-    // Fetch user data when component mounts
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/api/user');
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data);
-          
-          // If user already has a payment method, set the connected state
-          if (data.isPaymentMethod) {
-            setIsConnected(true);
-            setPaymentAddress(data.paymentAddress || '');
-            setSelectedPayment(data.paymentMethod || '');
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
+  const [visibleInput, setVisibleInput] = useState<string | null>(null);
 
-    fetchUserData();
-  }, []);
-
-  const toggleBox = (boxId: string) => {
-    setOpenInput(openInput === boxId ? null : boxId);
-    setSelectedPayment(getPaymentMethod(boxId));
-  };
-
-  const getPaymentMethod = (boxId: string) => {
-    switch(boxId) {
-      case 'paypal': return 'binance';
-      case 'googlepay': return 'kucoin';
-      case 'applepay': return 'trust_wallet';
-      case 'mastercard': return 'upi';
-      default: return '';
-    }
-  };
-
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPaymentAddress(e.target.value);
-  };
-
-  const handleConnectPayment = async () => {
-    if (!selectedPayment || !paymentAddress || !userData?.telegramId) return;
-    
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          telegramId: userData.telegramId,
-          paymentMethod: selectedPayment,
-          paymentAddress: paymentAddress,
-        }),
-      });
-
-      if (response.ok) {
-        setIsConnected(true);
-      }
-    } catch (error) {
-      console.error('Error connecting payment:', error);
-    }
-    setIsLoading(false);
-  };
-
-  const handleContinue = () => {
-    if (isConnected) {
-      router.push('/verify');
-    }
+  const toggleInput = (id: string) => {
+    setVisibleInput((prev) => (prev === id ? null : id));
   };
 
   return (
-    <div className="page-container">
-      <div className="content-wrapper">
-        <div className="header">
-          <i className="fas fa-arrow-left"></i>
-          <h1>Payment Methods</h1>
+    <div className="bg-white h-screen flex flex-col justify-between">
+      <div className="p-4">
+        <div className="flex items-center mb-4">
+          <i className="fas fa-arrow-left text-xl"></i>
+          <h1 className="text-xl font-semibold ml-4">Payment Methods</h1>
         </div>
-        
-        <div className="payment-methods">
-          <div id="paypal-box" className="payment-box" onClick={() => toggleBox('paypal')}>
-            <div className="payment-info">
-              <img alt="PayPal logo" src="https://storage.googleapis.com/a1aa/image/LM00lHy4e4VEfEwshfXBUMcJYM0B328inIsGRj7TYfhafrHdC.jpg"/>
-              <span>Binance</span>
+        <div className="space-y-4">
+          {paymentMethods.map(({ id, label, placeholder, image }) => (
+            <div
+              key={id}
+              className="flex items-center justify-between p-4 bg-gray-100 rounded-lg cursor-pointer"
+              onClick={() => toggleInput(id)}
+            >
+              <div className="flex items-center">
+                <img alt={`${label} logo`} className="w-10 h-10" src={image} />
+                <span className="ml-4 text-lg">{label}</span>
+              </div>
+              <span className="text-purple-600">Connected</span>
             </div>
-            <span className="status">
-              {userData?.paymentMethod === 'binance' ? 'Connected' : 
-               openInput === 'paypal' ? 'Selected' : 'Not Connected'}
-            </span>
-          </div>
-          <div id="paypal-input" className={`payment-input ${openInput !== 'paypal' ? 'hidden' : ''}`}>
-            <input 
-              type="text" 
-              placeholder="Enter Binance address"
-              onChange={handleAddressChange}
-              value={userData?.paymentMethod === 'binance' ? userData.paymentAddress : 
-                     openInput === 'paypal' ? paymentAddress : ''}
-            />
-          </div>
+          ))}
 
-          <div id="googlepay-box" className="payment-box" onClick={() => toggleBox('googlepay')}>
-            <div className="payment-info">
-              <img alt="Google Pay logo" src="https://storage.googleapis.com/a1aa/image/SvKY98RDkvYhENmLE9Ukt5u94yGsWNixkJM5U691UbdeveoTA.jpg"/>
-              <span>Kucoin</span>
+          {paymentMethods.map(({ id, placeholder }) => (
+            <div key={`${id}-input`} className={`p-4 bg-gray-100 rounded-lg ${visibleInput === id ? '' : 'hidden'}`}>
+              <input
+                type="text"
+                placeholder={placeholder}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
             </div>
-            <span className="status">
-              {userData?.paymentMethod === 'kucoin' ? 'Connected' : 
-               openInput === 'googlepay' ? 'Selected' : 'Not Connected'}
-            </span>
-          </div>
-          <div id="googlepay-input" className={`payment-input ${openInput !== 'googlepay' ? 'hidden' : ''}`}>
-            <input 
-              type="text" 
-              placeholder="Enter Kucoin address"
-              onChange={handleAddressChange}
-              value={userData?.paymentMethod === 'kucoin' ? userData.paymentAddress :
-                     openInput === 'googlepay' ? paymentAddress : ''}
-            />
-          </div>
-
-          <div id="applepay-box" className="payment-box" onClick={() => toggleBox('applepay')}>
-            <div className="payment-info">
-              <img alt="Apple Pay logo" src="https://storage.googleapis.com/a1aa/image/YqpCh7xg0Ab9N17SKmdPm6cBYfCqsSwebOnsx553IeS1f1jOB.jpg"/>
-              <span>Trust Wallet</span>
-            </div>
-            <span className="status">
-              {userData?.paymentMethod === 'trust_wallet' ? 'Connected' : 
-               openInput === 'applepay' ? 'Selected' : 'Not Connected'}
-            </span>
-          </div>
-          <div id="applepay-input" className={`payment-input ${openInput !== 'applepay' ? 'hidden' : ''}`}>
-            <input 
-              type="text" 
-              placeholder="Enter Trust Wallet address"
-              onChange={handleAddressChange}
-              value={userData?.paymentMethod === 'trust_wallet' ? userData.paymentAddress :
-                     openInput === 'applepay' ? paymentAddress : ''}
-            />
-          </div>
-
-          <div id="mastercard-box" className="payment-box" onClick={() => toggleBox('mastercard')}>
-            <div className="payment-info">
-              <img alt="Mastercard logo" src="https://storage.googleapis.com/a1aa/image/XBvmqXf3efCHMIrLcbgQfNciUh1kUfjmogYgjIg8xeoIeveoTA.jpg"/>
-              <span>Upi</span>
-            </div>
-            <span className="status">
-              {userData?.paymentMethod === 'upi' ? 'Connected' : 
-               openInput === 'mastercard' ? 'Selected' : 'Not Connected'}
-            </span>
-          </div>
-          <div id="mastercard-input" className={`payment-input ${openInput !== 'mastercard' ? 'hidden' : ''}`}>
-            <input 
-              type="text" 
-              placeholder="Enter UPI address"
-              onChange={handleAddressChange}
-              value={userData?.paymentMethod === 'upi' ? userData.paymentAddress :
-                     openInput === 'mastercard' ? paymentAddress : ''}
-            />
-          </div>
+          ))}
         </div>
-
-        <div className="connect-button">
-          <button 
-            onClick={handleConnectPayment}
-            disabled={!selectedPayment || !paymentAddress || isLoading || !userData}
-          >
-            {isLoading ? 'Connecting...' : 'Connect Payment Address'}
-          </button>
+        <div className="mt-8">
+          <button className="w-full py-4 bg-purple-100 text-purple-600 rounded-lg">Add New Card</button>
         </div>
       </div>
-
-      <div className="bottom-buttons">
-        <button className="cancel-button">Cancel</button>
-        <button 
-          className="continue-button"
-          disabled={!isConnected}
-          onClick={handleContinue}
-        >
-          {isConnected ? 'Next Step' : 'Continue'}
-        </button>
+      <div className="flex justify-between p-4">
+        <button className="w-1/2 py-4 bg-purple-100 text-purple-600 rounded-lg mr-2">Cancel</button>
+        <button className="w-1/2 py-4 bg-purple-600 text-white rounded-lg ml-2">Continue</button>
       </div>
     </div>
   );
 };
 
-export default PaymentPage;
+export default PaymentOptions;
