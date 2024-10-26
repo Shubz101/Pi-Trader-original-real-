@@ -4,18 +4,25 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import './page.css';
 
-const PaymentOptions = () => {
+interface PaymentMethod {
+  id: string;
+  label: string;
+  placeholder: string;
+  image: string;
+}
+
+const PaymentOptions: React.FC = () => {
   const router = useRouter();
   const [visibleInput, setVisibleInput] = useState<string | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [paymentAddress, setPaymentAddress] = useState<string>('');
   const [isConnected, setIsConnected] = useState(false);
 
-  const paymentMethods = [
+  const paymentMethods: PaymentMethod[] = [
     {
-      id: 'binance',
-      label: 'Binance',
-      placeholder: 'Enter Binance UID',
+      id: 'paypal',
+      label: 'PayPal',
+      placeholder: 'Enter PayPal address',
       image: 'https://storage.googleapis.com/a1aa/image/LM00lHy4e4VEfEwshfXBUMcJYM0B328inIsGRj7TYfhafrHdC.jpg',
     },
     {
@@ -63,40 +70,43 @@ const PaymentOptions = () => {
   const canContinue = isConnected;
 
   return (
-    <div className="bg-white h-screen flex flex-col justify-between">
-      <div className="p-4">
-        <div className="flex items-center mb-4">
-          <i className="fas fa-arrow-left text-xl"></i>
-          <h1 className="text-xl font-semibold ml-4">Payment Methods</h1>
+    <div className="payment-container">
+      <div className="payment-header">
+        <div className="header-content">
+          <i className="fas fa-arrow-left back-icon"></i>
+          <h1 className="page-title">Payment Methods</h1>
         </div>
-        <div className="space-y-4">
+        
+        <div className="payment-methods">
           {paymentMethods.map(({ id, label, placeholder, image }) => (
             <div key={id}>
               <div
-                className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-colors duration-300 ${
+                className={`payment-method-box ${
                   isConnected && selectedPayment === id
-                    ? 'bg-green-100'
+                    ? 'connected'
                     : isConnected
-                    ? 'bg-gray-200 cursor-not-allowed'
-                    : 'bg-gray-100 hover:bg-gray-200'
+                    ? 'disabled'
+                    : ''
                 }`}
                 onClick={() => toggleInput(id)}
               >
-                <div className="flex items-center">
-                  <img alt={`${label} logo`} className="w-10 h-10" src={image} />
-                  <span className="ml-4 text-lg">{label}</span>
+                <div className="payment-method-info">
+                  <img alt={`${label} logo`} className="payment-logo" src={image} />
+                  <span className="payment-label">{label}</span>
                 </div>
-                <span className={`${isConnected && selectedPayment === id ? 'text-green-600' : 'text-purple-600'}`}>
+                <span className={`payment-status ${
+                  isConnected && selectedPayment === id ? 'status-connected' : ''
+                }`}>
                   {isConnected && selectedPayment === id ? 'Connected' : 'Select'}
                 </span>
               </div>
 
               {visibleInput === id && !isConnected && (
-                <div className="p-4 bg-gray-100 rounded-lg mt-2">
+                <div className="payment-input-container">
                   <input
                     type="text"
                     placeholder={placeholder}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-600 outline-none"
+                    className="payment-input"
                     value={paymentAddress}
                     onChange={handleInputChange}
                   />
@@ -105,12 +115,11 @@ const PaymentOptions = () => {
             </div>
           ))}
         </div>
-        <div className="mt-8">
+
+        <div className="connect-button-container">
           <button
-            className={`w-full py-4 rounded-lg transition-colors duration-300 ${
-              canConnect || isConnected
-                ? 'bg-purple-600 text-white hover:bg-purple-700'
-                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+            className={`connect-button ${
+              canConnect || isConnected ? 'active' : 'disabled'
             }`}
             onClick={handleConnectPayment}
             disabled={!canConnect && !isConnected}
@@ -119,16 +128,13 @@ const PaymentOptions = () => {
           </button>
         </div>
       </div>
-      <div className="flex justify-between p-4">
-        <button className="w-1/2 py-4 bg-purple-100 text-purple-600 rounded-lg mr-2">
+
+      <div className="action-buttons">
+        <button className="cancel-button">
           Cancel
         </button>
         <button
-          className={`w-1/2 py-4 rounded-lg ml-2 transition-colors duration-300 ${
-            canContinue
-              ? 'bg-purple-600 text-white hover:bg-purple-700'
-              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-          }`}
+          className={`continue-button ${canContinue ? 'active' : 'disabled'}`}
           onClick={handleContinue}
           disabled={!canContinue}
         >
@@ -139,4 +145,4 @@ const PaymentOptions = () => {
   );
 };
 
-export default PaymentOptions;
+export default page;
