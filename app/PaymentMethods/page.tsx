@@ -13,9 +13,9 @@ const PaymentOptions = () => {
 
   const paymentMethods = [
     {
-      id: 'paypal',
-      label: 'PayPal',
-      placeholder: 'Enter PayPal address',
+      id: 'binance',
+      label: 'Binance',
+      placeholder: 'Enter Binance UID',
       image: 'https://storage.googleapis.com/a1aa/image/LM00lHy4e4VEfEwshfXBUMcJYM0B328inIsGRj7TYfhafrHdC.jpg',
     },
     {
