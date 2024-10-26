@@ -149,4 +149,4 @@ const PaymentOptions: React.FC = () => {
   );
 };
 
-export default PaymentMethods;
+export default PaymentOptions;
