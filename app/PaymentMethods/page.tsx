@@ -70,7 +70,7 @@ const PaymentOptions: React.FC = () => {
           ))}
         </div>
         <div className="mt-8">
-          <button className="w-full py-4 bg-purple-100 text-purple-600 rounded-lg">Add New Card</button>
+          <button className="w-full py-4 bg-purple-100 text-purple-600 rounded-lg">Connect Payment Method</button>
         </div>
       </div>
       <div className="flex justify-between p-4">
