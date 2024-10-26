@@ -101,7 +101,7 @@ const PaymentOptions: React.FC = () => {
                 <span className={`payment-status ${
                   isConnected && selectedPayment === id ? 'status-connected' : ''
                 }`}>
-                  {isConnected && selectedPayment === id ? 'Connected' : 'Select'}
+                  {isConnected && selectedPayment === id ? 'Connected' : 'Not Connected'}
                 </span>
               </div>
 
