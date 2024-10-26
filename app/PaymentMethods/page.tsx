@@ -9,7 +9,7 @@ interface PaymentMethod {
   label: string;
   placeholder: string;
   image: string;
-  highRate?: boolean;
+  badge?: string;
 }
 
 const PaymentOptions: React.FC = () => {
@@ -20,6 +20,7 @@ const PaymentOptions: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Payment methods data
   const paymentMethods: PaymentMethod[] = [
     {
       id: 'paypal',
@@ -38,18 +39,23 @@ const PaymentOptions: React.FC = () => {
       label: 'Apple Pay',
       placeholder: 'Enter Apple Pay address',
       image: 'https://storage.googleapis.com/a1aa/image/YqpCh7xg0Ab9N17SKmdPm6cBYfCqsSwebOnsx553IeS1f1jOB.jpg',
+      badge: 'High Rate'
     },
     {
-      id: 'binance',
-      label: 'Binance',
-      placeholder: 'Enter Binance details',
+      id: 'mastercard',
+      label: '•••• 2766',
+      placeholder: 'Enter Mastercard details',
       image: 'https://storage.googleapis.com/a1aa/image/XBvmqXf3efCHMIrLcbgQfNciUh1kUfjmogYgjIg8xeoIeveoTA.jpg',
-      highRate: true,
     },
   ];
 
+  // Handler functions
+  const handleBack = () => {
+    router.push('/');
+  };
+
   const toggleInput = (id: string) => {
-    if (!isConnected && !isLoading) {
+    if (!isConnected) {
       setVisibleInput(prev => prev === id ? null : id);
       setSelectedPayment(id);
       setPaymentAddress('');
@@ -65,35 +71,37 @@ const PaymentOptions: React.FC = () => {
     
     setIsLoading(true);
     
-    // Simulate loading delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsConnected(!isConnected);
-    setIsLoading(false);
+    try {
+      // Simulate API call with 2-second delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setIsConnected(!isConnected);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleContinue = () => {
     router.push('/verify');
   };
 
-  const handleBack = () => {
-    router.push('/');
-  };
-
+  // Computed properties
   const isValidPaymentAddress = paymentAddress.length > 0;
-  const canConnect = selectedPayment && isValidPaymentAddress && !isConnected && !isLoading;
+  const canConnect = selectedPayment && isValidPaymentAddress && !isConnected;
   const canContinue = isConnected;
 
   return (
     <div className="payment-container">
       <div className="payment-content">
         <div className="payment-header">
-          <i className="fas fa-arrow-left header-icon" onClick={handleBack}></i>
+          <i 
+            className="fas fa-arrow-left header-icon clickable" 
+            onClick={handleBack}
+          ></i>
           <h1 className="header-title">Payment Methods</h1>
         </div>
 
         <div className="payment-methods-list">
-          {paymentMethods.map(({ id, label, placeholder, image, highRate }) => (
+          {paymentMethods.map(({ id, label, placeholder, image, badge }) => (
             <div key={id}>
               <div
                 className={`payment-method-box ${
@@ -108,8 +116,8 @@ const PaymentOptions: React.FC = () => {
                 <div className="payment-method-info">
                   <img alt={`${label} logo`} className="payment-method-image" src={image} />
                   <div className="payment-method-details">
-                    {highRate && <span className="high-rate-badge">High Rate</span>}
                     <span className="payment-method-label">{label}</span>
+                    {badge && <span className="payment-method-badge">{badge}</span>}
                   </div>
                 </div>
                 <span className={`payment-status ${
@@ -137,17 +145,23 @@ const PaymentOptions: React.FC = () => {
         <div className="connect-button-container">
           <button
             className={`connect-button ${
-              canConnect || isConnected ? 'button-active' : 'button-disabled'
+              (canConnect || isConnected) ? 'button-active' : 'button-disabled'
             } ${isLoading ? 'button-loading' : ''}`}
             onClick={handleConnectPayment}
             disabled={(!canConnect && !isConnected) || isLoading}
           >
-            {isLoading ? 'Processing...' : isConnected ? 'Disconnect Payment Method' : 'Connect Payment Method'}
+            {isLoading ? 'Processing...' : (isConnected ? 'Disconnect Payment Method' : 'Connect Payment Method')}
           </button>
         </div>
       </div>
 
       <div className="bottom-buttons">
+        <button 
+          className="cancel-button"
+          onClick={handleBack}
+        >
+          Cancel
+        </button>
         <button
           className={`continue-button ${canContinue ? 'button-active' : 'button-disabled'}`}
           onClick={handleContinue}
