@@ -29,3 +29,4 @@ export async function POST(req: NextRequest) {
         console.error('Error processing user data:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
+}
