@@ -19,23 +19,41 @@ export async function POST(req: NextRequest) {
                     telegramId: userData.id,
                     username: userData.username || '',
                     firstName: userData.first_name || '',
-                    lastName: userData.last_name || '',
-                    paymentMethod: null
+                    lastName: userData.last_name || ''
                 }
-            })
-        }
-
-        // Update paymentMethod if provided
-        if (userData.paymentMethod) {
-            user = await prisma.user.update({
-                where: { telegramId: userData.id },
-                data: { paymentMethod: userData.paymentMethod }
             })
         }
 
         return NextResponse.json(user)
     } catch (error) {
         console.error('Error processing user data:', error)
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    }
+}
+
+// Add GET handler to fetch user data
+export async function GET(req: NextRequest) {
+    try {
+        // Get telegramId from the session or query parameter
+        // This depends on how you're passing the telegram ID
+        const url = new URL(req.url)
+        const telegramId = url.searchParams.get('telegramId')
+
+        if (!telegramId) {
+            return NextResponse.json({ error: 'Telegram ID required' }, { status: 400 })
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { telegramId: parseInt(telegramId) }
+        })
+
+        if (!user) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 })
+        }
+
+        return NextResponse.json(user)
+    } catch (error) {
+        console.error('Error fetching user data:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 }
