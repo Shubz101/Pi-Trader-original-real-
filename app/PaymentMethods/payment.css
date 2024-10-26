@@ -20,13 +20,16 @@
 
 .header-icon {
   font-size: 1.25rem;
+}
+
+.header-icon.clickable {
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 50%;
   transition: background-color 0.3s ease;
 }
 
-.header-icon:hover {
+.header-icon.clickable:hover {
   background-color: #f3f4f6;
 }
 
@@ -83,6 +86,7 @@
 .payment-method-details {
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
   margin-left: 1rem;
 }
 
@@ -90,14 +94,14 @@
   font-size: 1.125rem;
 }
 
-.high-rate-badge {
+.payment-method-badge {
   background-color: #059669;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
-  margin-bottom: 0.25rem;
-  width: fit-content;
+  font-weight: 500;
+  display: inline-block;
 }
 
 /* Status indicator styles */
@@ -136,7 +140,8 @@
 }
 
 .connect-button,
-.continue-button {
+.continue-button,
+.cancel-button {
   width: 100%;
   padding: 1rem;
   border-radius: 0.5rem;
@@ -164,16 +169,45 @@
   opacity: 0.7;
 }
 
-/* Bottom buttons container */
-.bottom-buttons {
-  padding: 1rem;
+.cancel-button {
+  background-color: #f3f4f6;
+  color: #7c3aed;
+  transition: background-color 0.3s ease;
 }
 
-/* Loading button animation */
+.cancel-button:hover {
+  background-color: #e5e7eb;
+}
+
+/* Bottom buttons container */
+.bottom-buttons {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.bottom-buttons button {
+  width: 50%;
+}
+
+/* Transitions */
+.payment-method-box,
+.connect-button,
+.continue-button {
+  transition: all 0.3s ease;
+}
+
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .button-loading {
