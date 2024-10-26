@@ -22,28 +22,28 @@ const PaymentOptions: React.FC = () => {
   // Payment methods data
   const paymentMethods: PaymentMethod[] = [
     {
-      id: 'paypal',
-      label: 'PayPal',
-      placeholder: 'Enter PayPal address',
-      image: 'https://storage.googleapis.com/a1aa/image/LM00lHy4e4VEfEwshfXBUMcJYM0B328inIsGRj7TYfhafrHdC.jpg',
+      id: 'binance',
+      label: 'Binance',
+      placeholder: 'Enter Binance UID',
+      image: 'https://i.imgur.com/iM5K2ey.jpg',
     },
     {
-      id: 'googlepay',
-      label: 'Google Pay',
-      placeholder: 'Enter Google Pay address',
-      image: 'https://storage.googleapis.com/a1aa/image/SvKY98RDkvYhENmLE9Ukt5u94yGsWNixkJM5U691UbdeveoTA.jpg',
+      id: 'kucoin',
+      label: 'KuCoin',
+      placeholder: 'Enter KuCoin UID',
+      image: 'https://i.imgur.com/jfjFkeA.jpg',
     },
     {
-      id: 'applepay',
-      label: 'Apple Pay',
-      placeholder: 'Enter Apple Pay address',
-      image: 'https://storage.googleapis.com/a1aa/image/YqpCh7xg0Ab9N17SKmdPm6cBYfCqsSwebOnsx553IeS1f1jOB.jpg',
+      id: 'trustwallet',
+      label: 'Trust Wallet',
+      placeholder: 'Enter Trust Wallet address',
+      image: 'https://i.imgur.com/fZI0OD2.jpg',
     },
     {
-      id: 'mastercard',
-      label: '•••• 2766',
-      placeholder: 'Enter Mastercard details',
-      image: 'https://storage.googleapis.com/a1aa/image/XBvmqXf3efCHMIrLcbgQfNciUh1kUfjmogYgjIg8xeoIeveoTA.jpg',
+      id: 'upi',
+      label: 'UPI',
+      placeholder: 'Enter UPI ID',
+      image: 'https://i.imgur.com/FK31xFx.jpg',
     },
   ];
 
