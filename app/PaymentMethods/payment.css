@@ -73,13 +73,14 @@
 }
 
 .payment-method-label {
+  color: #fff
   margin-left: 1rem;
   font-size: 1.125rem;
 }
 
 /* Status indicator styles */
 .payment-status {
-  color: #7c3aed;
+  color: #fa493c;
 }
 
 .status-connected {
