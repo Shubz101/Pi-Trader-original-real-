@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import styles from './PaymentMethods.module.css'
 
 interface PaymentMethod {
@@ -15,115 +14,44 @@ interface PaymentMethod {
 }
 
 export default function PaymentMethods() {
-  const router = useRouter()
   const [openInputId, setOpenInputId] = useState<string | null>(null)
-  const [selectedMethod, setSelectedMethod] = useState<string | null>(null)
-  const [paymentAddress, setPaymentAddress] = useState('')
-  const [isAddressValid, setIsAddressValid] = useState(false)
-  const [isSaved, setIsSaved] = useState(false)
-  const [buttonText, setButtonText] = useState('Continue')
 
   const paymentMethods: PaymentMethod[] = [
-    {
-      id: 'binance',
-      name: 'Binance',
-      image: 'https://i.imgur.com/iM5K2ey.jpg',
-      displayText: 'Binance',
-      isConnected: false,
-      placeholder: 'Enter Binance address'
-    },
-    {
-      id: 'kucoin',
-      name: 'KuCoin',
-      image: 'https://i.imgur.com/jfjFkeA.jpg',
-      displayText: 'KuCoin',
-      isConnected: false,
-      placeholder: 'Enter KuCoin address'
-    },
-    {
-      id: 'trustwallet',
-      name: 'Trust Wallet',
-      image: 'https://i.imgur.com/fZI0OD2.jpg',
-      displayText: 'Trust Wallet',
-      isConnected: false,
-      placeholder: 'Enter Trust Wallet address'
-    },
-    {
-      id: 'upi',
-      name: 'UPI',
-      image: 'https://i.imgur.com/FK31xFx.jpg',
-      displayText: 'UPI',
-      isConnected: false,
-      placeholder: 'Enter UPI address'
-    }
-  ]
-
-  useEffect(() => {
-    const checkExistingPayment = async () => {
-      try {
-        const response = await fetch('/api/user')
-        const userData = await response.json()
-        
-        if (userData.paymentMethod) {
-          setIsSaved(true)
-          setButtonText('Next Step')
-          const methodIndex = paymentMethods.findIndex(m => m.id === userData.paymentMethod)
-          if (methodIndex !== -1) {
-            paymentMethods[methodIndex].isConnected = true
-            setSelectedMethod(userData.paymentMethod)
-            setPaymentAddress(userData.paymentAddress || '')
-            setOpenInputId(userData.paymentMethod)
-          }
-        }
-      } catch (error) {
-        console.error('Error checking payment status:', error)
-      }
-    }
-
-    checkExistingPayment()
-  }, [])
-
+  {
+    id: 'binance',
+    name: 'Binance',
+    image: 'https://i.imgur.com/iM5K2ey.jpg', // Update the image path
+    displayText: 'Binance',
+    isConnected: false,
+    placeholder: 'Enter Binance address'
+  },
+  {
+    id: 'kucoin',
+    name: 'KuCoin',
+    image: 'https://i.imgur.com/jfjFkeA.jpg', // Update the image path
+    displayText: 'KuCoin',
+    isConnected: false,
+    placeholder: 'Enter KuCoin address'
+  },
+  {
+    id: 'trustwallet',
+    name: 'Trust Wallet',
+    image: 'https://i.imgur.com/fZI0OD2.jpg', // Update the image path
+    displayText: 'Trust Wallet',
+    isConnected: false,
+    placeholder: 'Enter Trust Wallet address'
+  },
+  {
+    id: 'upi',
+    name: 'UPI',
+    image: 'https://i.imgur.com/FK31xFx.jpg', // Update the image path
+    displayText: 'UPI',
+    isConnected: false,
+    placeholder: 'Enter UPI address'
+  }
+]
   const toggleInput = (id: string) => {
     setOpenInputId(openInputId === id ? null : id)
-    setSelectedMethod(id)
-  }
-
-  const handleAddressChange = (address: string) => {
-    setPaymentAddress(address)
-    setIsAddressValid(address.trim().length > 0)
-  }
-
-  const handleConnect = async () => {
-    if (!selectedMethod || !isAddressValid) return
-
-    try {
-      const response = await fetch('/api/user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          paymentMethod: selectedMethod,
-          paymentAddress: paymentAddress
-        }),
-      })
-
-      if (response.ok) {
-        setIsSaved(true)
-        setButtonText('Next Step')
-        paymentMethods.forEach(method => {
-          method.isConnected = method.id === selectedMethod
-        })
-      }
-    } catch (error) {
-      console.error('Error saving payment method:', error)
-    }
-  }
-
-  const handleContinue = () => {
-    if (isSaved) {
-      router.push('/verify')
-    }
   }
 
   return (
@@ -138,7 +66,7 @@ export default function PaymentMethods() {
           {paymentMethods.map((method) => (
             <div key={method.id}>
               <div 
-                className={`${styles.methodCard} ${method.isConnected ? styles.activeMethod : ''}`}
+                className={styles.methodCard}
                 onClick={() => toggleInput(method.id)}
               >
                 <div className={styles.methodInfo}>
@@ -151,7 +79,8 @@ export default function PaymentMethods() {
                   />
                   <span className={styles.methodName}>{method.displayText}</span>
                 </div>
-                <span className={`${styles.connectedStatus} ${method.isConnected ? styles.connected : styles.notConnected}`}>
+                <span className={`${
+                  styles.connectedStatus} ${method.isConnected ? styles.connected : styles.notConnected}`}>
                   {method.isConnected ? 'Connected' : 'Not Connected'}
                 </span>
               </div>
@@ -162,8 +91,6 @@ export default function PaymentMethods() {
                     type="text" 
                     placeholder={method.placeholder}
                     className={styles.addressInput}
-                    onChange={(e) => handleAddressChange(e.target.value)}
-                    value={paymentAddress}
                   />
                 </div>
               )}
@@ -172,25 +99,13 @@ export default function PaymentMethods() {
         </div>
 
         <div className={styles.connectButton}>
-          <button 
-            onClick={handleConnect}
-            disabled={!selectedMethod || !isAddressValid}
-            className={(!selectedMethod || !isAddressValid) ? styles.disabled : ''}
-          >
-            Connect Payment Address
-          </button>
+          <button>Connect Payment Address</button>
         </div>
       </div>
 
       <div className={styles.footer}>
         <button className={styles.cancelButton}>Cancel</button>
-        <button 
-          className={`${styles.continueButton} ${!isSaved ? styles.disabled : ''}`}
-          onClick={handleContinue}
-          disabled={!isSaved}
-        >
-          {buttonText}
-        </button>
+        <button className={styles.continueButton}>Continue</button>
       </div>
     </div>
   )
