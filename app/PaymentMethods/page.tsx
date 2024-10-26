@@ -1,112 +1,105 @@
-'use client'
-
-import { useState } from 'react'
-import Image from 'next/image'
-import styles from './PaymentMethods.module.css'
+import React, { useState } from 'react';
+import type { NextPage } from 'next';
+import './page.css';
 
 interface PaymentMethod {
-  id: string
-  name: string
-  image: string
-  displayText: string
-  isConnected: boolean
-  placeholder: string
+  id: string;
+  name: string;
+  logo: string;
+  placeholder: string;
+  value?: string;
 }
 
-export default function PaymentMethods() {
-  const [openInputId, setOpenInputId] = useState<string | null>(null)
+const Page: NextPage = () => {
+  const [activeInput, setActiveInput] = useState<string | null>(null);
 
   const paymentMethods: PaymentMethod[] = [
-  {
-    id: 'binance',
-    name: 'Binance',
-    image: 'https://i.imgur.com/iM5K2ey.jpg', // Update the image path
-    displayText: 'Binance',
-    isConnected: false,
-    placeholder: 'Enter Binance address'
-  },
-  {
-    id: 'kucoin',
-    name: 'KuCoin',
-    image: 'https://i.imgur.com/jfjFkeA.jpg', // Update the image path
-    displayText: 'KuCoin',
-    isConnected: false,
-    placeholder: 'Enter KuCoin address'
-  },
-  {
-    id: 'trustwallet',
-    name: 'Trust Wallet',
-    image: 'https://i.imgur.com/fZI0OD2.jpg', // Update the image path
-    displayText: 'Trust Wallet',
-    isConnected: false,
-    placeholder: 'Enter Trust Wallet address'
-  },
-  {
-    id: 'upi',
-    name: 'UPI',
-    image: 'https://i.imgur.com/FK31xFx.jpg', // Update the image path
-    displayText: 'UPI',
-    isConnected: false,
-    placeholder: 'Enter UPI address'
-  }
-]
-  const toggleInput = (id: string) => {
-    setOpenInputId(openInputId === id ? null : id)
-  }
+    {
+      id: 'paypal',
+      name: 'PayPal',
+      logo: 'https://storage.googleapis.com/a1aa/image/LM00lHy4e4VEfEwshfXBUMcJYM0B328inIsGRj7TYfhafrHdC.jpg',
+      placeholder: 'Enter PayPal address'
+    },
+    {
+      id: 'googlepay',
+      name: 'Google Pay',
+      logo: 'https://storage.googleapis.com/a1aa/image/SvKY98RDkvYhENmLE9Ukt5u94yGsWNixkJM5U691UbdeveoTA.jpg',
+      placeholder: 'Enter Google Pay address'
+    },
+    {
+      id: 'applepay',
+      name: 'Apple Pay',
+      logo: 'https://storage.googleapis.com/a1aa/image/YqpCh7xg0Ab9N17SKmdPm6cBYfCqsSwebOnsx553IeS1f1jOB.jpg',
+      placeholder: 'Enter Apple Pay address'
+    },
+    {
+      id: 'mastercard',
+      name: '•••• 2766',
+      logo: 'https://storage.googleapis.com/a1aa/image/XBvmqXf3efCHMIrLcbgQfNciUh1kUfjmogYgjIg8xeoIeveoTA.jpg',
+      placeholder: 'Enter Mastercard details'
+    }
+  ];
+
+  const toggleBox = (id: string) => {
+    setActiveInput(activeInput === id ? null : id);
+  };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.content}>
-        <div className={styles.header}>
-          <i className="fas fa-arrow-left"></i>
-          <h1>Payment Methods</h1>
+    <div className="payment-container">
+      <div className="payment-content">
+        <div className="header">
+          <i className="fas fa-arrow-left back-arrow" />
+          <h1 className="title">Payment Methods</h1>
         </div>
         
-        <div className={styles.methodsList}>
+        <div className="payment-methods">
           {paymentMethods.map((method) => (
             <div key={method.id}>
               <div 
-                className={styles.methodCard}
-                onClick={() => toggleInput(method.id)}
+                className="payment-box"
+                onClick={() => toggleBox(method.id)}
               >
-                <div className={styles.methodInfo}>
-                  <Image
-                    src={method.image}
+                <div className="payment-info">
+                  <img
+                    src={method.logo}
                     alt={`${method.name} logo`}
-                    width={40}
-                    height={40}
-                    className={styles.methodLogo}
+                    className="payment-logo"
+                    width="40"
+                    height="40"
                   />
-                  <span className={styles.methodName}>{method.displayText}</span>
+                  <span className="payment-name">{method.name}</span>
                 </div>
-                <span className={`${
-                  styles.connectedStatus} ${method.isConnected ? styles.connected : styles.notConnected}`}>
-                  {method.isConnected ? 'Connected' : 'Not Connected'}
-                </span>
+                <span className="connection-status">Connected</span>
               </div>
               
-              {openInputId === method.id && (
-                <div className={styles.inputContainer}>
-                  <input 
-                    type="text" 
-                    placeholder={method.placeholder}
-                    className={styles.addressInput}
-                  />
-                </div>
-              )}
+              <div className={`payment-input ${activeInput === method.id ? '' : 'hidden'}`}>
+                <input
+                  type="text"
+                  placeholder={method.placeholder}
+                  className="input-field"
+                />
+              </div>
             </div>
           ))}
         </div>
 
-        <div className={styles.connectButton}>
-          <button>Connect Payment Address</button>
+        <div className="add-card-container">
+          <button className="add-card-button">
+            Add New Card
+          </button>
         </div>
       </div>
 
-      <div className={styles.footer}>
-        <button className={styles.cancelButton}>Cancel</button>
-        <button className={styles.continueButton}>Continue</button>
+      <div className="action-buttons">
+        <button className="cancel-button">
+          Cancel
+        </button>
+        <button className="continue-button">
+          Continue
+        </button>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default Page;
