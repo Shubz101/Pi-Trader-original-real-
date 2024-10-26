@@ -1,13 +1,81 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import './payment.css';
 
 const PaymentPage = () => {
+  const router = useRouter();
   const [openInput, setOpenInput] = useState<string | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const [paymentAddress, setPaymentAddress] = useState<string>('');
+  const [isAddressConnected, setIsAddressConnected] = useState(false);
+  const [isContinueEnabled, setIsContinueEnabled] = useState(false);
+
+  // Check if payment method exists in database on component mount
+  useEffect(() => {
+    const checkPaymentMethod = async () => {
+      try {
+        const response = await fetch('/api/user/current'); // You'll need to implement this endpoint
+        const userData = await response.json();
+        if (userData.paymentMethod) {
+          setIsContinueEnabled(true);
+        }
+      } catch (error) {
+        console.error('Error checking payment method:', error);
+      }
+    };
+    checkPaymentMethod();
+  }, []);
 
   const toggleBox = (boxId: string) => {
     setOpenInput(openInput === boxId ? null : boxId);
+    setSelectedMethod(boxId);
+  };
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPaymentAddress(e.target.value);
+  };
+
+  const handleConnectAddress = async () => {
+    if (!selectedMethod || !paymentAddress) return;
+
+    try {
+      const response = await fetch('/api/user/payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          telegramId: 123, // Replace with actual telegram ID from your auth context
+          paymentMethod: selectedMethod,
+          paymentAddress: paymentAddress,
+        }),
+      });
+
+      if (response.ok) {
+        setIsAddressConnected(true);
+        setIsContinueEnabled(true);
+      }
+    } catch (error) {
+      console.error('Error connecting payment address:', error);
+    }
+  };
+
+  const handleContinue = () => {
+    if (isContinueEnabled) {
+      router.push('/verify');
+    }
+  };
+
+  const getPaymentMethodName = (method: string) => {
+    const methodMap: { [key: string]: string } = {
+      'paypal': 'Binance',
+      'googlepay': 'Kucoin',
+      'applepay': 'Trust Wallet',
+      'mastercard': 'UPI'
+    };
+    return methodMap[method] || method;
   };
 
   return (
@@ -19,59 +87,58 @@ const PaymentPage = () => {
         </div>
         
         <div className="payment-methods">
-          <div id="paypal-box" className="payment-box" onClick={() => toggleBox('paypal')}>
-            <div className="payment-info">
-              <img alt="PayPal logo" src="https://storage.googleapis.com/a1aa/image/LM00lHy4e4VEfEwshfXBUMcJYM0B328inIsGRj7TYfhafrHdC.jpg"/>
-              <span>Binance</span>
-            </div>
-            <span className="status">Not Connected</span>
-          </div>
-          <div id="paypal-input" className={`payment-input ${openInput !== 'paypal' ? 'hidden' : ''}`}>
-            <input type="text" placeholder="Enter PayPal address"/>
-          </div>
-
-          <div id="googlepay-box" className="payment-box" onClick={() => toggleBox('googlepay')}>
-            <div className="payment-info">
-              <img alt="Google Pay logo" src="https://storage.googleapis.com/a1aa/image/SvKY98RDkvYhENmLE9Ukt5u94yGsWNixkJM5U691UbdeveoTA.jpg"/>
-              <span>Kucoin</span>
-            </div>
-            <span className="status">Not Connected</span>
-          </div>
-          <div id="googlepay-input" className={`payment-input ${openInput !== 'googlepay' ? 'hidden' : ''}`}>
-            <input type="text" placeholder="Enter Google Pay address"/>
-          </div>
-
-          <div id="applepay-box" className="payment-box" onClick={() => toggleBox('applepay')}>
-            <div className="payment-info">
-              <img alt="Apple Pay logo" src="https://storage.googleapis.com/a1aa/image/YqpCh7xg0Ab9N17SKmdPm6cBYfCqsSwebOnsx553IeS1f1jOB.jpg"/>
-              <span>Trust Wallet</span>
-            </div>
-            <span className="status">Not Connected</span>
-          </div>
-          <div id="applepay-input" className={`payment-input ${openInput !== 'applepay' ? 'hidden' : ''}`}>
-            <input type="text" placeholder="Enter Apple Pay address"/>
-          </div>
-
-          <div id="mastercard-box" className="payment-box" onClick={() => toggleBox('mastercard')}>
-            <div className="payment-info">
-              <img alt="Mastercard logo" src="https://storage.googleapis.com/a1aa/image/XBvmqXf3efCHMIrLcbgQfNciUh1kUfjmogYgjIg8xeoIeveoTA.jpg"/>
-              <span>Upi</span>
-            </div>
-            <span className="status">Not Connected</span>
-          </div>
-          <div id="mastercard-input" className={`payment-input ${openInput !== 'mastercard' ? 'hidden' : ''}`}>
-            <input type="text" placeholder="Enter Mastercard details"/>
-          </div>
+          {['paypal', 'googlepay', 'applepay', 'mastercard'].map((method) => (
+            <React.Fragment key={method}>
+              <div 
+                id={`${method}-box`} 
+                className="payment-box" 
+                onClick={() => toggleBox(method)}
+              >
+                <div className="payment-info">
+                  <img 
+                    alt={`${getPaymentMethodName(method)} logo`} 
+                    src={`https://storage.googleapis.com/a1aa/image/${method}.jpg`}
+                  />
+                  <span>{getPaymentMethodName(method)}</span>
+                </div>
+                <span className="status">
+                  {selectedMethod === method && isAddressConnected ? 'Connected' : 'Not Connected'}
+                </span>
+              </div>
+              <div 
+                id={`${method}-input`} 
+                className={`payment-input ${openInput !== method ? 'hidden' : ''}`}
+              >
+                <input 
+                  type="text" 
+                  placeholder={`Enter ${getPaymentMethodName(method)} address`}
+                  onChange={handleAddressChange}
+                  value={selectedMethod === method ? paymentAddress : ''}
+                />
+              </div>
+            </React.Fragment>
+          ))}
         </div>
 
         <div className="connect-button">
-          <button>Connect Payment Address</button>
+          <button 
+            onClick={handleConnectAddress}
+            disabled={!selectedMethod || !paymentAddress}
+          >
+            Connect Payment Address
+          </button>
         </div>
       </div>
 
       <div className="bottom-buttons">
         <button className="cancel-button">Cancel</button>
-        <button className="continue-button">Continue</button>
+        <button 
+          className={`continue-button ${isContinueEnabled ? 'enabled' : ''}`}
+          onClick={handleContinue}
+          disabled={!isContinueEnabled}
+        >
+          {isContinueEnabled ? 'Next Step' : 'Continue'}
+        </button>
       </div>
     </div>
   );
