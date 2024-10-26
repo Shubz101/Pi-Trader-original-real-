@@ -1,0 +1,15 @@
+.hidden {
+  display: none;
+}
+
+.payment-box:hover {
+  background-color: #e2e8f0; /* Light gray background on hover */
+}
+
+.payment-input {
+  transition: border-color 0.3s ease; /* Smooth border transition */
+}
+
+.payment-input:focus {
+  border-color: #805ad5; /* Change border color on focus */
+}
