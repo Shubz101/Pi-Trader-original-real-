@@ -102,8 +102,8 @@
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   outline: none;
-  color: #212121
   transition: border-color 0.3s ease;
+  color: #212121
 }
 
 .payment-input:focus {
