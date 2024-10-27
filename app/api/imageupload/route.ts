@@ -35,13 +35,13 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
 
     // Upload to Cloudinary
-    const { shortUrl, publicUrl } = await uploadToCloudinary(buffer, file.name);
+    const { publicUrl } = await uploadToCloudinary(buffer, file.name);
 
-    // Update database with short URL
+    // Update database with public URL
     await prisma.user.update({
       where: { telegramId },
       data: {
-        imageUrl: shortUrl,
+        imageUrl: publicUrl,
         isUpload: true
       }
     });
