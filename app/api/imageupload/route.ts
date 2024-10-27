@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     await prisma.user.update({
       where: { telegramId },
       data: {
-        imageUrl: shortUrl,
+        imageUrl: publicUrl,
         isUpload: true
       }
     });
