@@ -1,29 +1,28 @@
 'use client'
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, ChangeEvent } from 'react';
 import Link from 'next/link';
 
 const PaymentProof = () => {
-  const [piAmount, setPiAmount] = useState('');
-  const [imageUploaded, setImageUploaded] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [piAmount, setPiAmount] = useState<string>('');
+  const [imageUploaded, setImageUploaded] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
   const walletAddress = 'GHHHjJhGgGfFfHjIuYrDc';
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleCopyAddress = () => {
+  const handleCopyAddress = (): void => {
     navigator.clipboard.writeText(walletAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>): void => {
+    if (e.target.files && e.target.files.length > 0) {
       setImageUploaded(true);
     }
   };
 
-  const calculateUSDT = (pi) => {
+  const calculateUSDT = (pi: string): string => {
     const amount = parseFloat(pi);
     return amount ? (amount * 0.65).toFixed(2) : '0.00';
   };
