@@ -2,8 +2,10 @@
 
 import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const PaymentProof = () => {
+  const router = useRouter();
   const [piAmount, setPiAmount] = useState<string>('');
   const [imageUploaded, setImageUploaded] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -85,7 +87,7 @@ const PaymentProof = () => {
     try {
       await navigator.clipboard.writeText(walletAddress);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error('Failed to copy wallet address:', error);
     }
@@ -94,6 +96,27 @@ const PaymentProof = () => {
   const calculateUSDT = (pi: string): string => {
     const amount = parseFloat(pi);
     return amount ? (amount * 0.65).toFixed(2) : '0.00';
+  };
+
+  const handleContinue = async () => {
+    if (telegramId && piAmount) {
+      try {
+        const response = await fetch('/api/piamount', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            telegramId,
+            amount: piAmount
+          })
+        });
+        
+        if (response.ok) {
+          router.push('/next-page');
+        }
+      } catch (error) {
+        console.error('Error saving pi amount:', error);
+      }
+    }
   };
 
   const isButtonEnabled = piAmount && imageUploaded;
@@ -199,17 +222,16 @@ const PaymentProof = () => {
 
           {/* Continue Button */}
           <div className="mt-8 flex justify-end">
-            <Link href="/next-page">
-              <button
-                disabled={!isButtonEnabled}
-                className={`px-8 py-3 rounded-full text-white font-bold text-lg transition-all
-                  ${isButtonEnabled 
-                    ? 'bg-[#670773] hover:bg-[#7a1b86] transform hover:scale-105'
-                    : 'bg-gray-400 cursor-not-allowed'}`}
-              >
-                Continue
-              </button>
-            </Link>
+            <button
+              onClick={handleContinue}
+              disabled={!isButtonEnabled}
+              className={`px-8 py-3 rounded-full text-white font-bold text-lg transition-all
+                ${isButtonEnabled 
+                  ? 'bg-[#670773] hover:bg-[#7a1b86] transform hover:scale-105'
+                  : 'bg-gray-400 cursor-not-allowed'}`}
+            >
+              Continue
+            </button>
           </div>
         </div>
 
