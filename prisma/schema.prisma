@@ -17,6 +17,7 @@ model User {
   introSeen      Boolean  @default(false)
   paymentMethod  String?
   paymentAddress String?
+  isUpload       Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
