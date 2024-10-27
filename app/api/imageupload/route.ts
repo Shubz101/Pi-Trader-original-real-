@@ -1,37 +1,82 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+// app/api/imageupload/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { uploadToCloudinary, validateImage } from '@/utils/cloudinary';
 
-export async function POST(req: NextRequest) {
-    try {
-        const formData = await req.formData();
-        const file = formData.get('file') as File;
-        const telegramId = formData.get('telegramId') as string;
+const prisma = new PrismaClient();
 
-        if (!file || !telegramId) {
-            return NextResponse.json({ error: 'Missing file or telegramId' }, { status: 400 })
-        }
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    const telegramId = parseInt(formData.get('telegramId') as string);
 
-        // Convert the file to base64 for storage
-        // Note: In a production environment, you should use a proper cloud storage service
-        const bytes = await file.arrayBuffer()
-        const buffer = Buffer.from(bytes)
-        const base64String = `data:${file.type};base64,${buffer.toString('base64')}`
-
-        const updatedUser = await prisma.user.update({
-            where: { telegramId: parseInt(telegramId) },
-            data: {
-                isUpload: true,
-                imageUrl: base64String
-            }
-        })
-
-        return NextResponse.json({ 
-            success: true, 
-            isUpload: updatedUser.isUpload,
-            imageUrl: updatedUser.imageUrl
-        })
-    } catch (error) {
-        console.error('Error updating image upload status:', error)
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    if (!file || !telegramId) {
+      return NextResponse.json(
+        { success: false, error: 'Missing required fields' },
+        { status: 400 }
+      );
     }
+
+    // Validate the image
+    const validation = validateImage({
+      size: file.size,
+      type: file.type
+    });
+
+    if (!validation.valid) {
+      return NextResponse.json(
+        { success: false, error: validation.error },
+        { status: 400 }
+      );
+    }
+
+    // Convert file to buffer
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Upload to Cloudinary
+    const { shortUrl, publicUrl } = await uploadToCloudinary(buffer, file.name);
+
+    // Update database with short URL
+    await prisma.user.update({
+      where: { telegramId },
+      data: {
+        imageUrl: shortUrl,
+        isUpload: true
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      imageUrl: publicUrl // Return public URL for display
+    });
+  } catch (error) {
+    console.error('Error processing upload:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to process upload' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { telegramId } = await request.json();
+
+    await prisma.user.update({
+      where: { telegramId },
+      data: {
+        imageUrl: null,
+        isUpload: false
+      }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error removing image:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to remove image' },
+      { status: 500 }
+    );
+  }
 }
