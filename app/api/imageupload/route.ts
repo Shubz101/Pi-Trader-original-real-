@@ -35,13 +35,13 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
 
     // Upload to Cloudinary
-    const { publicUrl } = await uploadToCloudinary(buffer, file.name);
+    const { shortUrl, publicUrl } = await uploadToCloudinary(buffer, file.name);
 
-    // Update database with public URL
+    // Update database with short URL
     await prisma.user.update({
       where: { telegramId },
       data: {
-        imageUrl: publicUrl,
+        imageUrl: shortUrl,
         isUpload: true
       }
     });
@@ -61,7 +61,16 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { telegramId } = await request.json();
+    // Get telegramId from the URL search params instead of request body
+    const searchParams = request.nextUrl.searchParams;
+    const telegramId = parseInt(searchParams.get('telegramId') || '');
+
+    if (!telegramId) {
+      return NextResponse.json(
+        { success: false, error: 'Missing telegramId' },
+        { status: 400 }
+      );
+    }
 
     await prisma.user.update({
       where: { telegramId },
