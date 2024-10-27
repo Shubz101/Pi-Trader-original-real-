@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import './payment.css';
 
@@ -12,6 +12,20 @@ interface PaymentMethod {
   badge?: string;
 }
 
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp: {
+        initDataUnsafe: {
+          user: {
+            id: number;
+          };
+        };
+      };
+    };
+  }
+}
+
 const PaymentOptions: React.FC = () => {
   const router = useRouter();
   const [visibleInput, setVisibleInput] = useState<string | null>(null);
@@ -19,8 +33,8 @@ const PaymentOptions: React.FC = () => {
   const [paymentAddress, setPaymentAddress] = useState<string>('');
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [telegramId, setTelegramId] = useState<number | null>(null);
 
-  // Payment methods data
   const paymentMethods: PaymentMethod[] = [
     {
       id: 'paypal',
@@ -49,7 +63,35 @@ const PaymentOptions: React.FC = () => {
     },
   ];
 
-  // Handler functions
+  useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      const webAppUser = window.Telegram.WebApp.initDataUnsafe?.user;
+      if (webAppUser) {
+        setTelegramId(webAppUser.id);
+        fetchPaymentData(webAppUser.id);
+      }
+    }
+  }, []);
+
+  const fetchPaymentData = async (userId: number) => {
+    try {
+      const response = await fetch(`/api/user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userId })
+      });
+      const userData = await response.json();
+      
+      if (userData.paymentMethod && userData.paymentAddress) {
+        setSelectedPayment(userData.paymentMethod);
+        setPaymentAddress(userData.paymentAddress);
+        setIsConnected(true);
+      }
+    } catch (error) {
+      console.error('Error fetching payment data:', error);
+    }
+  };
+
   const handleBack = () => {
     router.push('/');
   };
@@ -67,14 +109,41 @@ const PaymentOptions: React.FC = () => {
   };
 
   const handleConnectPayment = async () => {
-    if (isLoading) return;
+    if (isLoading || !telegramId) return;
     
     setIsLoading(true);
     
     try {
-      // Simulate API call with 2-second delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setIsConnected(!isConnected);
+      if (!isConnected) {
+        const response = await fetch('/api/payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            telegramId,
+            paymentMethod: selectedPayment,
+            paymentAddress
+          })
+        });
+        const data = await response.json();
+        if (data.success) {
+          setIsConnected(true);
+        }
+      } else {
+        const response = await fetch('/api/payment', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ telegramId })
+        });
+        const data = await response.json();
+        if (data.success) {
+          setIsConnected(false);
+          setSelectedPayment(null);
+          setPaymentAddress('');
+          setVisibleInput(null);
+        }
+      }
+    } catch (error) {
+      console.error('Error managing payment:', error);
     } finally {
       setIsLoading(false);
     }
@@ -84,7 +153,6 @@ const PaymentOptions: React.FC = () => {
     router.push('/verify');
   };
 
-  // Computed properties
   const isValidPaymentAddress = paymentAddress.length > 0;
   const canConnect = selectedPayment && isValidPaymentAddress && !isConnected;
   const canContinue = isConnected;
