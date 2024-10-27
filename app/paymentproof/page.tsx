@@ -6,6 +6,7 @@ import Link from 'next/link';
 const PaymentProof = () => {
   const [piAmount, setPiAmount] = useState<string>('');
   const [imageUploaded, setImageUploaded] = useState<boolean>(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [telegramId, setTelegramId] = useState<number | null>(null);
   const walletAddress = 'GHHHjJhGgGfFfHjIuYrDc';
@@ -31,31 +32,28 @@ const PaymentProof = () => {
       });
       const userData = await response.json();
       setImageUploaded(userData.isUpload || false);
+      setImageUrl(userData.imageUrl || null);
     } catch (error) {
       console.error('Error fetching upload status:', error);
     }
   };
 
-  const handleCopyAddress = () => {
-    navigator.clipboard.writeText(walletAddress);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
     if (e.target.files && e.target.files.length > 0 && telegramId) {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('telegramId', telegramId.toString());
+
       try {
         const response = await fetch('/api/imageupload', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            telegramId,
-            isUpload: true
-          })
+          body: formData
         });
         const data = await response.json();
         if (data.success) {
           setImageUploaded(true);
+          setImageUrl(data.imageUrl);
         }
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -71,12 +69,14 @@ const PaymentProof = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             telegramId,
-            isUpload: false
+            isUpload: false,
+            imageUrl: null
           })
         });
         const data = await response.json();
         if (data.success) {
           setImageUploaded(false);
+          setImageUrl(null);
           if (fileInputRef.current) {
             fileInputRef.current.value = '';
           }
@@ -147,43 +147,51 @@ const PaymentProof = () => {
 
           {/* Image Upload Section */}
           <div className="bg-white rounded-lg p-6 shadow-md">
-            <h2 className="text-lg font-semibold text-[#670773] mb-3">
-              Payment Proof Screenshot
-            </h2>
-            <div
-              onClick={() => !imageUploaded && fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-                ${imageUploaded ? 'border-[#670773] bg-purple-50' : 'border-gray-300'}`}
-            >
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageUpload}
-                accept="image/*"
-                className="hidden"
-              />
-              {imageUploaded ? (
-                <div className="text-[#670773]">
-                  <i className="fas fa-check-circle text-3xl mb-2"></i>
-                  <p>Image uploaded successfully</p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveImage();
-                    }}
-                    className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ) : (
-                <div className="text-gray-500">
-                  <i className="fas fa-cloud-upload-alt text-3xl mb-2"></i>
-                  <p>Click to upload screenshot</p>
-                </div>
-              )}
+        <h2 className="text-lg font-semibold text-[#670773] mb-3">
+          Payment Proof Screenshot
+        </h2>
+        <div
+          onClick={() => !imageUploaded && fileInputRef.current?.click()}
+          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+            ${imageUploaded ? 'border-[#670773] bg-purple-50' : 'border-gray-300'}`}
+        >
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+            accept="image/*"
+            className="hidden"
+          />
+          {imageUploaded && imageUrl ? (
+            <div className="text-[#670773]">
+              <i className="fas fa-check-circle text-3xl mb-2"></i>
+              <p>Image uploaded successfully</p>
+              <div className="mt-4 mb-4">
+                <img 
+                  src={imageUrl} 
+                  alt="Payment proof" 
+                  className="max-w-full h-auto rounded-lg mx-auto"
+                  style={{ maxHeight: '200px' }}
+                />
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveImage();
+                }}
+                className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Remove
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="text-gray-500">
+              <i className="fas fa-cloud-upload-alt text-3xl mb-2"></i>
+              <p>Click to upload screenshot</p>
+            </div>
+          )}
+        </div>
+        </div>
         </div>
 
         {/* Continue Button */}
