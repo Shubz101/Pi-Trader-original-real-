@@ -12,19 +12,8 @@ interface PaymentMethod {
   badge?: string;
 }
 
-declare global {
-  interface Window {
-    Telegram?: {
-      WebApp: {
-        initDataUnsafe: {
-          user: {
-            id: number;
-          };
-        };
-      };
-    };
-  }
-}
+// Removed the problematic global declaration
+// We'll just use type assertion when accessing Telegram.WebApp
 
 const PaymentOptions: React.FC = () => {
   const router = useRouter();
@@ -64,8 +53,10 @@ const PaymentOptions: React.FC = () => {
   ];
 
   useEffect(() => {
-    if (window.Telegram?.WebApp) {
-      const webAppUser = window.Telegram.WebApp.initDataUnsafe?.user;
+    // Using type assertion to avoid TypeScript errors
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg) {
+      const webAppUser = tg.initDataUnsafe?.user;
       if (webAppUser) {
         setTelegramId(webAppUser.id);
         fetchPaymentData(webAppUser.id);
