@@ -141,7 +141,7 @@ const PaymentOptions: React.FC = () => {
   };
 
   const handleContinue = () => {
-    router.push('/verify');
+    router.push('/paymentproof');
   };
 
   const isValidPaymentAddress = paymentAddress.length > 0;
