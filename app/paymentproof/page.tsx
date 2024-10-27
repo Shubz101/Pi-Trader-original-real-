@@ -12,7 +12,6 @@ const PaymentProof = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Using type assertion to avoid TypeScript errors
     const tg = (window as any).Telegram?.WebApp;
     if (tg) {
       const webAppUser = tg.initDataUnsafe?.user;
@@ -23,7 +22,7 @@ const PaymentProof = () => {
     }
   }, []);
 
-  const fetchUploadStatus = async (userId: number) => {
+  const fetchUploadStatus = async (userId: number): Promise<void> => {
     try {
       const response = await fetch(`/api/user`, {
         method: 'POST',
@@ -37,16 +36,14 @@ const PaymentProof = () => {
     }
   };
 
-  const handleCopyAddress = (): void => {
+  const handleCopyAddress = () => {
     navigator.clipboard.writeText(walletAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>): void => {
+  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
     if (e.target.files && e.target.files.length > 0 && telegramId) {
-      // Here you would typically handle the actual file upload to your storage
-      // For now, we'll just update the status
       try {
         const response = await fetch('/api/imageupload', {
           method: 'POST',
@@ -66,7 +63,7 @@ const PaymentProof = () => {
     }
   };
 
-  const handleRemoveImage = async (): void => {
+  const handleRemoveImage = async (): Promise<void> => {
     if (telegramId) {
       try {
         const response = await fetch('/api/imageupload', {
@@ -150,40 +147,43 @@ const PaymentProof = () => {
 
           {/* Image Upload Section */}
           <div className="bg-white rounded-lg p-6 shadow-md">
-        <h2 className="text-lg font-semibold text-[#670773] mb-3">
-          Payment Proof Screenshot
-        </h2>
-        <div
-          onClick={() => !imageUploaded && fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-            ${imageUploaded ? 'border-[#670773] bg-purple-50' : 'border-gray-300'}`}
-        >
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageUpload}
-            accept="image/*"
-            className="hidden"
-          />
-          {imageUploaded ? (
-            <div className="text-[#670773]">
-              <i className="fas fa-check-circle text-3xl mb-2"></i>
-              <p>Image uploaded successfully</p>
-              <button
-                onClick={handleRemoveImage}
-                className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-              >
-                Remove
-              </button>
+            <h2 className="text-lg font-semibold text-[#670773] mb-3">
+              Payment Proof Screenshot
+            </h2>
+            <div
+              onClick={() => !imageUploaded && fileInputRef.current?.click()}
+              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+                ${imageUploaded ? 'border-[#670773] bg-purple-50' : 'border-gray-300'}`}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept="image/*"
+                className="hidden"
+              />
+              {imageUploaded ? (
+                <div className="text-[#670773]">
+                  <i className="fas fa-check-circle text-3xl mb-2"></i>
+                  <p>Image uploaded successfully</p>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveImage();
+                    }}
+                    className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="text-gray-500">
+                  <i className="fas fa-cloud-upload-alt text-3xl mb-2"></i>
+                  <p>Click to upload screenshot</p>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="text-gray-500">
-              <i className="fas fa-cloud-upload-alt text-3xl mb-2"></i>
-              <p>Click to upload screenshot</p>
-            </div>
-          )}
-        </div>
-      </div>
+          </div>
         </div>
 
         {/* Continue Button */}
