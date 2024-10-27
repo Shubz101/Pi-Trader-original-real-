@@ -29,11 +29,8 @@ export const uploadToCloudinary = async (file: Buffer, originalName: string) => 
       resource_type: 'auto'
     });
 
-    // Return both short URL and full URL
-    const shortUrl = `/img/${hash}`; // For database storage
-    const publicUrl = result.secure_url; // Full Cloudinary URL for display
-
-    return { shortUrl, publicUrl };
+    // Return only the full public URL
+    return { publicUrl: result.secure_url };
   } catch (error) {
     throw new Error(`Error uploading to Cloudinary: ${error}`);
   }
