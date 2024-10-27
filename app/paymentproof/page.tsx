@@ -64,14 +64,8 @@ const PaymentProof = () => {
   const handleRemoveImage = async (): Promise<void> => {
     if (telegramId) {
       try {
-        const response = await fetch('/api/imageupload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            telegramId,
-            isUpload: false,
-            imageUrl: null
-          })
+        const response = await fetch(`/api/imageupload?telegramId=${telegramId}`, {
+          method: 'DELETE',
         });
         const data = await response.json();
         if (data.success) {
