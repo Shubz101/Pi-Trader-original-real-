@@ -87,6 +87,16 @@ const PaymentProof = () => {
     }
   };
 
+  const handleCopyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(walletAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
+    } catch (error) {
+      console.error('Failed to copy wallet address:', error);
+    }
+  };
+
   const calculateUSDT = (pi: string): string => {
     const amount = parseFloat(pi);
     return amount ? (amount * 0.65).toFixed(2) : '0.00';
@@ -147,69 +157,68 @@ const PaymentProof = () => {
 
           {/* Image Upload Section */}
           <div className="bg-white rounded-lg p-6 shadow-md">
-        <h2 className="text-lg font-semibold text-[#670773] mb-3">
-          Payment Proof Screenshot
-        </h2>
-        <div
-          onClick={() => !imageUploaded && fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-            ${imageUploaded ? 'border-[#670773] bg-purple-50' : 'border-gray-300'}`}
-        >
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageUpload}
-            accept="image/*"
-            className="hidden"
-          />
-          {imageUploaded && imageUrl ? (
-            <div className="text-[#670773]">
-              <i className="fas fa-check-circle text-3xl mb-2"></i>
-              <p>Image uploaded successfully</p>
-              <div className="mt-4 mb-4">
-                <img 
-                  src={imageUrl} 
-                  alt="Payment proof" 
-                  className="max-w-full h-auto rounded-lg mx-auto"
-                  style={{ maxHeight: '200px' }}
-                />
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveImage();
-                }}
-                className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-              >
-                Remove
-              </button>
-            </div>
-          ) : (
-            <div className="text-gray-500">
-              <i className="fas fa-cloud-upload-alt text-3xl mb-2"></i>
-              <p>Click to upload screenshot</p>
-            </div>
-          )}
-        </div>
-        </div>
-        </div>
-
-        {/* Continue Button */}
-        <div className="mt-8 flex justify-end">
-          <Link href="/next-page">
-            <button
-              disabled={!isButtonEnabled}
-              className={`px-8 py-3 rounded-full text-white font-bold text-lg transition-all
-                ${isButtonEnabled 
-                  ? 'bg-[#670773] hover:bg-[#7a1b86] transform hover:scale-105'
-                  : 'bg-gray-400 cursor-not-allowed'}`}
+            <h2 className="text-lg font-semibold text-[#670773] mb-3">
+              Payment Proof Screenshot
+            </h2>
+            <div
+              onClick={() => !imageUploaded && fileInputRef.current?.click()}
+              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+                ${imageUploaded ? 'border-[#670773] bg-purple-50' : 'border-gray-300'}`}
             >
-              Continue
-            </button>
-          </Link>
-        </div>
-      </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept="image/*"
+                className="hidden"
+              />
+              {imageUploaded && imageUrl ? (
+                <div className="text-[#670773]">
+                  <i className="fas fa-check-circle text-3xl mb-2"></i>
+                  <p>Image uploaded successfully</p>
+                  <div className="mt-4 mb-4">
+                    <img 
+                      src={imageUrl} 
+                      alt="Payment proof" 
+                      className="max-w-full h-auto rounded-lg mx-auto"
+                      style={{ maxHeight: '200px' }}
+                    />
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveImage();
+                    }}
+                    className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="text-gray-500">
+                  <i className="fas fa-cloud-upload-alt text-3xl mb-2"></i>
+                  <p>Click to upload screenshot</p>
+                </div>
+              )}
+            </div>
+          </div>
 
+          {/* Continue Button */}
+          <div className="mt-8 flex justify-end">
+            <Link href="/next-page">
+              <button
+                disabled={!isButtonEnabled}
+                className={`px-8 py-3 rounded-full text-white font-bold text-lg transition-all
+                  ${isButtonEnabled 
+                    ? 'bg-[#670773] hover:bg-[#7a1b86] transform hover:scale-105'
+                    : 'bg-gray-400 cursor-not-allowed'}`}
+              >
+                Continue
+              </button>
+            </Link>
+          </div>
+        </div>
+        
       {/* Notification for copy */}
       {copied && (
         <div className="fixed bottom-4 right-4 bg-[#670773] text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in">
