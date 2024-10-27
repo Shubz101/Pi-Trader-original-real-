@@ -19,6 +19,7 @@ model User {
   paymentAddress String?
   isUpload       Boolean  @default(false)
   imageUrl       String?
+  piAmount       Int[]    @default([])  // Added this field
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
