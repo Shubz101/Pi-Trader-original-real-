@@ -218,23 +218,24 @@ const PaymentProof = () => {
             </Link>
           </div>
         </div>
-        
-      {/* Notification for copy */}
-      {copied && (
-        <div className="fixed bottom-4 right-4 bg-[#670773] text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in">
-          Address copied!
-        </div>
-      )}
 
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out forwards;
-        }
-      `}</style>
+        {/* Notification for copy */}
+        {copied && (
+          <div className="fixed bottom-4 right-4 bg-[#670773] text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in">
+            Address copied!
+          </div>
+        )}
+        
+        <style jsx>{`
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fade-in {
+            animation: fade-in 0.3s ease-out forwards;
+          }
+        `}</style>
+      </div>
     </div>
   );
 };
