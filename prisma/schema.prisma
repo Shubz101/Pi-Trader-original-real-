@@ -23,7 +23,6 @@ model User {
   piAmount       Int[]    @default([])
   finalpis       Int[]    @default([])
   piaddress      String?  // New field for Pi wallet address
-  isPending      Boolean  @default(false)  // New field with default value false
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
