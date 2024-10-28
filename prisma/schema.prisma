@@ -21,6 +21,7 @@ model User {
   imageUrl       String?  // For temporary storage
   savedImages    String[] @default([])  // For permanent storage array
   piAmount       Int[]    @default([])
+  finalpis       Int[]    @default([])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
