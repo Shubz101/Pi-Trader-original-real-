@@ -11,6 +11,9 @@ const PaymentProof = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [telegramId, setTelegramId] = useState<number | null>(null);
+  const [piAddress, setPiAddress] = useState<string>('');
+  const [hasStoredAddress, setHasStoredAddress] = useState<boolean>(false);
+  const [isEditingAddress, setIsEditingAddress] = useState<boolean>(false);
   const walletAddress = 'GHHHjJhGgGfFfHjIuYrDc';
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,6 +38,10 @@ const PaymentProof = () => {
       const userData = await response.json();
       setImageUploaded(userData.isUpload || false);
       setImageUrl(userData.imageUrl || null);
+      if (userData.piaddress) {
+        setPiAddress(userData.piaddress);
+        setHasStoredAddress(true);
+      }
     } catch (error) {
       console.error('Error fetching upload status:', error);
     }
@@ -107,11 +114,14 @@ const PaymentProof = () => {
           body: JSON.stringify({
             telegramId,
             amount: piAmount,
-            imageUrl: imageUrl
+            imageUrl: imageUrl,
+            piaddress: piAddress
           })
         });
         
         if (response.ok) {
+          setHasStoredAddress(true);
+          setIsEditingAddress(false);
           router.push('/summary');
         }
       } catch (error) {
@@ -120,7 +130,7 @@ const PaymentProof = () => {
     }
   };
 
-  const isButtonEnabled = piAmount && imageUploaded;
+  const isButtonEnabled = piAmount && imageUploaded && piAddress;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -171,6 +181,33 @@ const PaymentProof = () => {
                 You will receive {calculateUSDT(piAmount)} USDT
               </p>
             )}
+          </div>
+
+          {/* Pi Address Section */}
+          <div className="bg-white rounded-lg p-6 shadow-md">
+            <h2 className="text-lg font-semibold text-[#670773] mb-3">
+              Your Pi Wallet Address
+            </h2>
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={piAddress}
+                onChange={(e) => setPiAddress(e.target.value)}
+                disabled={hasStoredAddress && !isEditingAddress}
+                className={`flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#670773] ${
+                  hasStoredAddress && !isEditingAddress ? 'bg-gray-100' : ''
+                }`}
+                placeholder="Enter your Pi wallet address"
+              />
+              {hasStoredAddress && (
+                <button
+                  onClick={() => setIsEditingAddress(!isEditingAddress)}
+                  className="bg-[#670773] text-white p-2 rounded-lg hover:bg-[#7a1b86] transition-colors"
+                >
+                  <i className={`fas fa-${isEditingAddress ? 'times' : 'edit'} text-lg`}></i>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Image Upload Section */}
