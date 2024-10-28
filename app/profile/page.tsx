@@ -11,6 +11,17 @@ interface ProfileData {
   piPoints: number;
 }
 
+interface XPRequirement {
+  current: number;
+  required: number;
+}
+
+interface Level {
+  name: string;
+  threshold: number;
+  pointsPerHundredXP: number;
+}
+
 const Profile = () => {
   const [profileData, setProfileData] = useState<ProfileData>({
     piAmount: [],
@@ -20,7 +31,7 @@ const Profile = () => {
     piPoints: 0,
   });
 
-  const levels = [
+  const levels: Level[] = [
     { name: 'Rookie', threshold: 1000, pointsPerHundredXP: 1 },
     { name: 'Bronze', threshold: 1200, pointsPerHundredXP: 3 },
     { name: 'Silver', threshold: 1300, pointsPerHundredXP: 5 },
@@ -65,12 +76,12 @@ const Profile = () => {
     }
   };
 
-  const calculatePiPoints = (xp: number, level: number) => {
+  const calculatePiPoints = (xp: number, level: number): number => {
     const pointsRate = levels[level - 1]?.pointsPerHundredXP || levels[levels.length - 1].pointsPerHundredXP;
     return Math.floor(xp / 100) * pointsRate;
   };
 
-  const getCurrentLevel = (totalXp: number) => {
+  const getCurrentLevel = (totalXp: number): number => {
     let remainingXp = totalXp;
     for (let i = 0; i < levels.length; i++) {
       if (remainingXp < levels[i].threshold) {
@@ -81,7 +92,7 @@ const Profile = () => {
     return levels.length + 1; // For infinite level
   };
 
-  const getProgress = (totalXp: number) => {
+  const getProgress = (totalXp: number): number => {
     let remainingXp = totalXp;
     const currentLevel = getCurrentLevel(totalXp);
     
@@ -102,20 +113,23 @@ const Profile = () => {
     return (remainingXp / currentThreshold) * 100;
   };
 
-  const getLevelName = (level: number) => {
+  const getLevelName = (level: number): string => {
     if (level > levels.length) {
       return 'Infinite';
     }
     return levels[level - 1]?.name || 'Max Level';
   };
 
-  const getRequiredXP = (totalXp: number) => {
+  const getRequiredXP = (totalXp: number): XPRequirement => {
     let remainingXp = totalXp;
     const currentLevel = getCurrentLevel(totalXp);
     
     // If at infinite level
     if (currentLevel > levels.length) {
-      return 1000000;
+      return {
+        current: remainingXp,
+        required: 1000000
+      };
     }
 
     // Calculate remaining XP for current level
