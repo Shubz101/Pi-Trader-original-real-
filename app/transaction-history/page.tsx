@@ -13,6 +13,13 @@ declare global {
   }
 }
 
+interface Transaction {
+  piAmount: number
+  paymentMethod: string
+  paymentAddress: string
+  istransaction: boolean
+}
+
 interface User {
   piAmount: number[]
   paymentMethod: string
@@ -20,21 +27,11 @@ interface User {
   istransaction: boolean
 }
 
-// New interface to store the snapshot of transaction details
-interface TransactionSnapshot {
-  piAmount: number
-  paymentMethod: string
-  paymentAddress: string
-  timestamp: Date
-}
-
 export default function TransactionHistory() {
   const [user, setUser] = useState<User | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
-  // New state to store transaction snapshots
-  const [transactionHistory, setTransactionHistory] = useState<TransactionSnapshot[]>([])
 
   useEffect(() => {
     setMounted(true)
@@ -58,26 +55,6 @@ export default function TransactionHistory() {
               setError(data.error)
             } else {
               setUser(data)
-              // Create snapshots of transactions if they don't exist
-              if (data.piAmount) {
-                const currentSnapshots = [...transactionHistory]
-                const newSnapshots: TransactionSnapshot[] = []
-                
-                data.piAmount.forEach((amount: number, index: number) => {
-                  if (index >= currentSnapshots.length) {
-                    newSnapshots.push({
-                      piAmount: amount,
-                      paymentMethod: data.paymentMethod,
-                      paymentAddress: data.paymentAddress,
-                      timestamp: new Date()
-                    })
-                  }
-                })
-                
-                if (newSnapshots.length > 0) {
-                  setTransactionHistory(prev => [...newSnapshots, ...prev])
-                }
-              }
             }
           })
           .catch((err) => {
@@ -124,70 +101,61 @@ export default function TransactionHistory() {
     <div className={`bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen ${mounted ? 'fade-in' : ''}`}>
       <Script src="https://kit.fontawesome.com/18e66d329f.js"/>
       
-      <div className="w-full custom-purple text-white p-3 flex items-center justify-between shadow-lg slide-down">
+      {/* Header */}
+      <div className="w-full custom-purple text-white p-4 flex items-center justify-between shadow-lg slide-down">
         <Link href="/">
           <button className="focus:outline-none hover-scale">
-            <i className="fas fa-arrow-left text-xl"></i>
+            <i className="fas fa-arrow-left text-2xl"></i>
           </button>
         </Link>
-        <h1 className="text-xl font-bold">Transaction History</h1>
+        <h1 className="text-2xl font-bold">Transaction History</h1>
         <div></div>
       </div>
 
-      <div className="container mx-auto px-3 py-2 space-y-2">
+      {/* Transaction Cards */}
+      <div className="container mx-auto p-4 space-y-4">
         {user.piAmount.length === 0 ? (
           <div className="text-center text-gray-500 mt-8 fade-in-up">
             No transactions yet
           </div>
         ) : (
-          user.piAmount.map((amount, index) => {
-            const isFirstTransaction = index === 0
-            const snapshot = transactionHistory[user.piAmount.length - 1 - index] || {
-              paymentMethod: user.paymentMethod,
-              paymentAddress: user.paymentAddress,
-              timestamp: new Date()
-            }
-
+          [...user.piAmount].reverse().map((amount, index) => {
+            const realIndex = user.piAmount.length - 1 - index
             return (
               <div 
                 key={index}
-                className="bg-white rounded-lg shadow p-3 space-y-1.5 fade-in-up"
+                className="bg-white rounded-lg shadow-lg p-6 space-y-3 fade-in-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">Amount:</span>
-                  <div className="text-right">
-                    <div className="font-bold custom-purple-text">{amount} Pi</div>
-                    <div className="text-xs text-gray-500">${(amount * 0.65).toFixed(2)}</div>
-                  </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Pi Amount Sold:</span>
+                  <span className="font-bold custom-purple-text">{amount} Pi</span>
                 </div>
                 
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">Payment:</span>
-                  <span className="font-medium">{snapshot.paymentMethod}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Amount to Receive:</span>
+                  <span className="font-bold custom-purple-text">${(amount * 0.65).toFixed(2)}</span>
                 </div>
                 
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">Address:</span>
-                  <span className="font-medium text-right truncate max-w-[200px]">
-                    {snapshot.paymentAddress}
-                  </span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Payment Method:</span>
+                  <span className="font-medium">{user.paymentMethod}</span>
                 </div>
                 
-                <div className="flex justify-between items-center text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Payment Address:</span>
+                  <span className="font-medium break-all">{user.paymentAddress}</span>
+                </div>
+                
+                <div className="flex justify-between items-center">
                   <span className="text-gray-600">Status:</span>
-                  <span className={`font-medium ${isFirstTransaction && user.istransaction ? 'text-yellow-500' : 'text-green-500'}`}>
-                    {isFirstTransaction && user.istransaction ? 'Pending' : 'Completed'}
+                  <span className={`font-medium ${user.istransaction ? 'text-yellow-500' : 'text-green-500'}`}>
+                    {user.istransaction ? 'Processing' : 'Completed'}
                   </span>
-                </div>
-
-                <div className="flex justify-between items-center text-xs text-gray-500">
-                  <span>{snapshot.timestamp.toLocaleDateString()}</span>
-                  <span>{snapshot.timestamp.toLocaleTimeString()}</span>
                 </div>
               </div>
             )
-          }).reverse()
+          })
         )}
       </div>
 
