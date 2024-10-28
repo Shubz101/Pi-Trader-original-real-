@@ -48,16 +48,9 @@ const Profile = () => {
       });
       const userData = await response.json();
       
-      // Calculate total Pi sold from the piAmount array
       const totalPiSold = userData.piAmount.reduce((sum: number, amount: number) => sum + amount, 0);
-      
-      // Calculate XP (1 Pi = 1 XP)
       const xp = totalPiSold;
-      
-      // Calculate current level based on XP
       const currentLevel = getCurrentLevel(xp);
-      
-      // Calculate Pi points based on level and XP
       const piPoints = calculatePiPoints(xp, currentLevel);
 
       setProfileData({
@@ -77,37 +70,72 @@ const Profile = () => {
     return Math.floor(xp / 100) * pointsRate;
   };
 
-  const getCurrentLevel = (xp: number) => {
-    const level = levels.findIndex(lvl => xp < lvl.threshold);
-    return level === -1 ? levels.length : level;
+  const getCurrentLevel = (totalXp: number) => {
+    let remainingXp = totalXp;
+    for (let i = 0; i < levels.length; i++) {
+      if (remainingXp < levels[i].threshold) {
+        return i + 1;
+      }
+      remainingXp -= levels[i].threshold;
+    }
+    return levels.length + 1; // For infinite level
   };
 
-  const getProgress = (xp: number) => {
-    const currentLevel = getCurrentLevel(xp);
-    const previousThreshold = currentLevel > 0 ? levels[currentLevel - 1].threshold : 0;
-    const nextThreshold = levels[currentLevel]?.threshold || levels[levels.length - 1].threshold;
-    const progress = ((xp - previousThreshold) / (nextThreshold - previousThreshold)) * 100;
-    return Math.min(progress, 100);
+  const getProgress = (totalXp: number) => {
+    let remainingXp = totalXp;
+    const currentLevel = getCurrentLevel(totalXp);
+    
+    // If at infinite level
+    if (currentLevel > levels.length) {
+      return (remainingXp / 1000000) * 100;
+    }
+
+    // Calculate XP for current level
+    for (let i = 0; i < currentLevel - 1; i++) {
+      remainingXp -= levels[i].threshold;
+    }
+
+    const currentThreshold = currentLevel <= levels.length 
+      ? levels[currentLevel - 1].threshold 
+      : 1000000;
+
+    return (remainingXp / currentThreshold) * 100;
   };
 
   const getLevelName = (level: number) => {
+    if (level > levels.length) {
+      return 'Infinite';
+    }
     return levels[level - 1]?.name || 'Max Level';
   };
 
-  const getRequiredXP = (level: number) => {
-    return levels[level - 1]?.threshold || levels[levels.length - 1].threshold;
+  const getRequiredXP = (totalXp: number) => {
+    let remainingXp = totalXp;
+    const currentLevel = getCurrentLevel(totalXp);
+    
+    // If at infinite level
+    if (currentLevel > levels.length) {
+      return 1000000;
+    }
+
+    // Calculate remaining XP for current level
+    for (let i = 0; i < currentLevel - 1; i++) {
+      remainingXp -= levels[i].threshold;
+    }
+
+    return {
+      current: remainingXp,
+      required: levels[currentLevel - 1].threshold
+    };
   };
 
   return (
     <div className="profile-container">
-      {/* Header */}
       <div className="profile-header">
         <h1>Profile</h1>
       </div>
 
-      {/* Main Content */}
       <div className="profile-content">
-        {/* Total Pi Sold Card */}
         <div className="profile-card">
           <h2>Total Pi Sold</h2>
           <div className="stat-value">
@@ -116,7 +144,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Level Progress Card */}
         <div className="profile-card">
           <h2>Level Progress</h2>
           <div className="level-info">
@@ -124,7 +151,7 @@ const Profile = () => {
               Level {getCurrentLevel(profileData.xp)} - {getLevelName(getCurrentLevel(profileData.xp))}
             </span>
             <div className="xp-display">
-              {profileData.xp}/{getRequiredXP(getCurrentLevel(profileData.xp))} XP
+              {getRequiredXP(profileData.xp).current}/{getRequiredXP(profileData.xp).required} XP
             </div>
           </div>
           <div className="progress-bar-container">
@@ -135,7 +162,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Pi Points Card */}
         <div className="profile-card">
           <h2>Pi Points</h2>
           <div className="stat-value">
