@@ -112,7 +112,7 @@ const PaymentProof = () => {
         });
         
         if (response.ok) {
-          router.push('/next-page');
+          router.push('/summary');
         }
       } catch (error) {
         console.error('Error saving pi amount:', error);
