@@ -31,6 +31,8 @@ export default function Home() {
     } else if (item === 'Transaction History') {
       // Add your transaction history route here
       // window.location.href = '/transaction-history'
+    } else if (item === 'Profile') {
+      window.location.href = './profile'
     }
     setMenuOpen(false)
   }
@@ -160,7 +162,7 @@ export default function Home() {
         </button>
         <nav className="mt-16">
           <ul className="menu-items">
-            {['Home', 'Transaction History', 'Live Support'].map((item, index) => (
+            {['Home', 'Transaction History', 'Live Support', 'Profile'].map((item, index) => (
               <li key={index} style={{animationDelay: `${index * 0.1}s`}}>
                 <a 
                   href="#" 
