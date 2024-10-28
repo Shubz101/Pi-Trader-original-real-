@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 const PaymentProof = () => {
   const router = useRouter();
   const [piAmount, setPiAmount] = useState<string>('');
-  const [piAddress, setPiAddress] = useState<string>('');
   const [imageUploaded, setImageUploaded] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
@@ -36,9 +35,6 @@ const PaymentProof = () => {
       const userData = await response.json();
       setImageUploaded(userData.isUpload || false);
       setImageUrl(userData.imageUrl || null);
-      if (userData.PiAddress) {
-        setPiAddress(userData.PiAddress);
-      }
     } catch (error) {
       console.error('Error fetching upload status:', error);
     }
@@ -103,7 +99,7 @@ const PaymentProof = () => {
   };
 
   const handleContinue = async () => {
-    if (telegramId && piAmount && piAddress && imageUrl) {
+    if (telegramId && piAmount && imageUrl) {
       try {
         const response = await fetch('/api/piamount', {
           method: 'POST',
@@ -111,7 +107,6 @@ const PaymentProof = () => {
           body: JSON.stringify({
             telegramId,
             amount: piAmount,
-            PiAddress: piAddress,
             imageUrl: imageUrl
           })
         });
@@ -125,7 +120,7 @@ const PaymentProof = () => {
     }
   };
 
-  const isButtonEnabled = piAmount &&  piAddress && imageUploaded;
+  const isButtonEnabled = piAmount && imageUploaded;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -176,20 +171,6 @@ const PaymentProof = () => {
                 You will receive {calculateUSDT(piAmount)} USDT
               </p>
             )}
-          </div>
-
-          {/* Pi Wallet Address Section */}
-          <div className="bg-white rounded-lg p-6 shadow-md">
-            <h2 className="text-lg font-semibold text-[#670773] mb-3">
-              Enter Your Pi wallet address
-            </h2>
-            <input
-              type="text"
-              value={piAddress}
-              onChange={(e) => setPiAddress(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#670773]"
-              placeholder="Enter your Pi wallet address"
-            />
           </div>
 
           {/* Image Upload Section */}
