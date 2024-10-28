@@ -293,3 +293,5 @@ const PaymentProof = () => {
     </div>
   );
 };
+
+export default PaymentProof;
