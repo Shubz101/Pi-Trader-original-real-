@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
             success: true,
             piAmount: updatedUser.piAmount,
             finalpis: updatedUser.finalpis,
-            PiAddress: updatedUser.PiAddress,
+            piAddress: updatedUser.PiAddress,
             savedImages: updatedUser.savedImages
         })
     } catch (error) {
