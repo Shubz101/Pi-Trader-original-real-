@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { WebApp } from '@twa-dev/types'
 import Script from 'next/script'
+import Link from 'next/link'
 
 declare global {
   interface Window {
@@ -147,6 +148,13 @@ export default function Summary() {
             You can check transaction status in menu &gt; Transaction History
           </p>
         </div>
+
+        {/* Back to Home Button */}
+        <Link href="/">
+          <button className="bg-[#670773] text-white text-xl font-bold py-3 px-12 rounded-full mt-8 shadow-lg hover-scale animate-fade-in">
+            Back to Home
+          </button>
+        </Link>
       </div>
 
       <style jsx>{`
@@ -203,6 +211,15 @@ export default function Summary() {
         .animate-slide-up {
           animation: slide-up 0.5s ease-out forwards 0.6s;
           opacity: 0;
+        }
+        .hover-scale {
+          transition: transform 0.2s ease-out;
+        }
+        .hover-scale:hover {
+          transform: scale(1.05);
+        }
+        .hover-scale:active {
+          transform: scale(0.95);
         }
       `}</style>
     </div>
