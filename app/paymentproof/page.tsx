@@ -115,7 +115,8 @@ const PaymentProof = () => {
             telegramId,
             amount: piAmount,
             imageUrl: imageUrl,
-            piaddress: piAddress
+            piaddress: piAddress,
+            ispending: true // Set ispending to true when continuing
           })
         });
         
@@ -131,7 +132,7 @@ const PaymentProof = () => {
   };
 
   const isButtonEnabled = piAmount && imageUploaded && piAddress;
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       {/* Header */}
