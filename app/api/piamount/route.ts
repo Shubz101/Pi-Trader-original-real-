@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
     try {
-        const { telegramId, amount, imageUrl } = await req.json()
+        const { telegramId, amount, imageUrl, piaddress } = await req.json()
         
         if (!telegramId) {
             return NextResponse.json({ error: 'Invalid telegramId' }, { status: 400 })
@@ -24,11 +24,12 @@ export async function POST(req: NextRequest) {
                     push: parseInt(amount)
                 },
                 finalpis: {
-                  push: parseInt(amount)
+                    push: parseInt(amount)
                 },
                 savedImages: {
                     push: imageUrl  // Add the current imageUrl to savedImages array
                 },
+                piaddress: piaddress,  // Update the Pi address
                 imageUrl: null,     // Clear the temporary imageUrl
                 isUpload: false     // Reset upload status
             }
@@ -38,7 +39,8 @@ export async function POST(req: NextRequest) {
             success: true,
             piAmount: updatedUser.piAmount,
             finalpis: updatedUser.finalpis,
-            savedImages: updatedUser.savedImages
+            savedImages: updatedUser.savedImages,
+            piaddress: updatedUser.piaddress
         })
     } catch (error) {
         console.error('Error updating pi amount:', error)
