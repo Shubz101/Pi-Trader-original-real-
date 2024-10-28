@@ -3,8 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import './profile.css';
 
+interface ProfileData {
+  piAmount: number[];
+  totalPiSold: number;
+  xp: number;
+  level: number;
+  piPoints: number;
+}
+
 const Profile = () => {
-  const [profileData, setProfileData] = useState({
+  const [profileData, setProfileData] = useState<ProfileData>({
+    piAmount: [],
     totalPiSold: 0,
     xp: 0,
     level: 1,
@@ -30,18 +39,42 @@ const Profile = () => {
     }
   }, []);
 
-  const fetchProfileData = async (userId: number) => {
+  const fetchProfileData = async (telegramId: number) => {
     try {
-      const response = await fetch(`/api/profile`, {
+      const response = await fetch(`/api/user`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: userId })
+        body: JSON.stringify({ id: telegramId })
       });
-      const data = await response.json();
-      setProfileData(data);
+      const userData = await response.json();
+      
+      // Calculate total Pi sold from the piAmount array
+      const totalPiSold = userData.piAmount.reduce((sum: number, amount: number) => sum + amount, 0);
+      
+      // Calculate XP (1 Pi = 1 XP)
+      const xp = totalPiSold;
+      
+      // Calculate current level based on XP
+      const currentLevel = getCurrentLevel(xp);
+      
+      // Calculate Pi points based on level and XP
+      const piPoints = calculatePiPoints(xp, currentLevel);
+
+      setProfileData({
+        piAmount: userData.piAmount,
+        totalPiSold,
+        xp,
+        level: currentLevel,
+        piPoints
+      });
     } catch (error) {
       console.error('Error fetching profile data:', error);
     }
+  };
+
+  const calculatePiPoints = (xp: number, level: number) => {
+    const pointsRate = levels[level - 1]?.pointsPerHundredXP || levels[levels.length - 1].pointsPerHundredXP;
+    return Math.floor(xp / 100) * pointsRate;
   };
 
   const getCurrentLevel = (xp: number) => {
