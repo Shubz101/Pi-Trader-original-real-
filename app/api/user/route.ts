@@ -11,17 +11,10 @@ const LEVELS = [
 ];
 
 function calculateProfileMetrics(piAmountArray: number[]) {
-    // Calculate total Pi sold
     const totalPiSold = piAmountArray.reduce((sum, amount) => sum + amount, 0);
-    
-    // Calculate XP (1 Pi = 1 XP)
     const xp = totalPiSold;
-    
-    // Calculate current level
     const currentLevel = LEVELS.findIndex(lvl => xp < lvl.threshold);
     const level = currentLevel === -1 ? LEVELS.length : currentLevel;
-    
-    // Calculate Pi points based on level and XP
     const pointsRate = LEVELS[level - 1]?.pointsPerHundredXP || LEVELS[LEVELS.length - 1].pointsPerHundredXP;
     const piPoints = Math.floor(xp / 100) * pointsRate;
 
@@ -51,15 +44,14 @@ export async function POST(req: NextRequest) {
                     telegramId: userData.id,
                     username: userData.username || '',
                     firstName: userData.first_name || '',
-                    lastName: userData.last_name || ''
+                    lastName: userData.last_name || '',
+                    ispending: false // Set default value when creating new user
                 }
             })
         }
 
-        // Calculate profile metrics
         const metrics = calculateProfileMetrics(user.piAmount);
 
-        // Return combined user data and metrics
         return NextResponse.json({
             ...user,
             ...metrics
