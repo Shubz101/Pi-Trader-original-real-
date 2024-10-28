@@ -1,5 +1,3 @@
-'use client'
-
 import { useEffect, useState } from 'react';
 
 // Type definition for our user data
@@ -20,15 +18,28 @@ export default function PaymentCardsPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('/api/users/transactions');
+        // Log the fetch attempt
+        console.log('Fetching users...');
+        
+        const response = await fetch('/api/transactions');
+        console.log('Response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch users');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to fetch users');
         }
+        
         const data = await response.json();
-        setUsers(data.filter((user: User) => user.istransaction));
+        console.log('Fetched data:', data);
+        
+        // Filter users with istransaction = true
+        const transactionUsers = data.filter((user: User) => user.istransaction);
+        console.log('Filtered users:', transactionUsers);
+        
+        setUsers(transactionUsers);
       } catch (err) {
-        setError('Failed to load payment data');
-        console.error('Error fetching users:', err);
+        console.error('Detailed error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load payment data');
       } finally {
         setLoading(false);
       }
@@ -47,8 +58,11 @@ export default function PaymentCardsPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-red-500">
-        {error}
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-red-500">
+          <p>Error: {error}</p>
+          <p className="text-sm mt-2">Please check the console for more details.</p>
+        </div>
       </div>
     );
   }
