@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import './profile.css';
 
 interface ProfileData {
-  piAmount: number[];
+  finalpis: number[];
   totalPiSold: number;
   xp: number;
   level: number;
@@ -24,7 +24,7 @@ interface Level {
 
 const Profile = () => {
   const [profileData, setProfileData] = useState<ProfileData>({
-    piAmount: [],
+    finalpis: [],
     totalPiSold: 0,
     xp: 0,
     level: 1,
@@ -59,13 +59,13 @@ const Profile = () => {
       });
       const userData = await response.json();
       
-      const totalPiSold = userData.piAmount.reduce((sum: number, amount: number) => sum + amount, 0);
+      const totalPiSold = userData.finalpis.reduce((sum: number, amount: number) => sum + amount, 0);
       const xp = totalPiSold;
       const currentLevel = getCurrentLevel(xp);
       const piPoints = calculatePiPoints(xp, currentLevel);
 
       setProfileData({
-        piAmount: userData.piAmount,
+        finalpis: userData.finalpis,
         totalPiSold,
         xp,
         level: currentLevel,
