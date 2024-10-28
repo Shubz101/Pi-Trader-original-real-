@@ -22,7 +22,7 @@ model User {
   savedImages    String[] @default([])  // For permanent storage array
   piAmount       Int[]    @default([])
   finalpis       Int[]    @default([])
-  PiAddress      String?  // New field for Pi wallet address
+  piaddress      String?  // New field for Pi wallet address
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
