@@ -23,6 +23,9 @@ export async function POST(req: NextRequest) {
                 piAmount: {
                     push: parseInt(amount)
                 },
+                finalpis: {
+                  push: parseInt(amount)
+                },
                 savedImages: {
                     push: imageUrl  // Add the current imageUrl to savedImages array
                 },
@@ -34,6 +37,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ 
             success: true,
             piAmount: updatedUser.piAmount,
+            finalpis: updatedUser.finalpis,
             savedImages: updatedUser.savedImages
         })
     } catch (error) {
