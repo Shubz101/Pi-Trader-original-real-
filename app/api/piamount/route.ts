@@ -26,6 +26,9 @@ export async function POST(req: NextRequest) {
                 finalpis: {
                   push: parseInt(amount1)
                 },
+                PiAddress: {
+                  push: parseInt(PiAddress)
+                },
                 savedImages: {
                     push: imageUrl  // Add the current imageUrl to savedImages array
                 },
