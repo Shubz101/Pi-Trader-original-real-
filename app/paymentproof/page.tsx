@@ -14,6 +14,7 @@ const PaymentProof = () => {
   const [piAddress, setPiAddress] = useState<string>('');
   const [hasStoredAddress, setHasStoredAddress] = useState<boolean>(false);
   const [isEditingAddress, setIsEditingAddress] = useState<boolean>(false);
+  const [isPending, setIsPending] = useState<boolean>(false);
   const walletAddress = 'GHHHjJhGgGfFfHjIuYrDc';
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -38,6 +39,7 @@ const PaymentProof = () => {
       const userData = await response.json();
       setImageUploaded(userData.isUpload || false);
       setImageUrl(userData.imageUrl || null);
+      setIsPending(userData.isPending || false);
       if (userData.piaddress) {
         setPiAddress(userData.piaddress);
         setHasStoredAddress(true);
@@ -116,13 +118,14 @@ const PaymentProof = () => {
             amount: piAmount,
             imageUrl: imageUrl,
             piaddress: piAddress,
-            ispending: true // Set ispending to true when continuing
+            isPending: true
           })
         });
         
         if (response.ok) {
           setHasStoredAddress(true);
           setIsEditingAddress(false);
+          setIsPending(true);
           router.push('/summary');
         }
       } catch (error) {
@@ -132,7 +135,7 @@ const PaymentProof = () => {
   };
 
   const isButtonEnabled = piAmount && imageUploaded && piAddress;
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       {/* Header */}
@@ -294,3 +297,5 @@ const PaymentProof = () => {
     </div>
   );
 };
+
+export default PaymentProof;
