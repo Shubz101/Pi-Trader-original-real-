@@ -30,24 +30,24 @@ const PaymentProof = () => {
   }, []);
 
   const fetchUploadStatus = async (userId: number): Promise<void> => {
-    try {
-      const response = await fetch(`/api/user`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: userId })
-      });
-      const userData = await response.json();
-      setImageUploaded(userData.isUpload || false);
-      setImageUrl(userData.imageUrl || null);
-      setIsPending(userData.isPending || false);
-      if (userData.piaddress) {
-        setPiAddress(userData.piaddress);
-        setHasStoredAddress(true);
-      }
-    } catch (error) {
-      console.error('Error fetching upload status:', error);
+  try {
+    const response = await fetch(`/api/user`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: userId })
+    });
+    const userData = await response.json();
+    setImageUploaded(userData.isUpload || false);
+    setImageUrl(userData.imageUrl || null);
+    setIsPending(userData.isPending || false);  // Add this line
+    if (userData.piaddress) {
+      setPiAddress(userData.piaddress);
+      setHasStoredAddress(true);
     }
-  };
+  } catch (error) {
+    console.error('Error fetching upload status:', error);
+  }
+};
 
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
     if (e.target.files && e.target.files.length > 0 && telegramId) {
@@ -108,31 +108,31 @@ const PaymentProof = () => {
   };
 
   const handleContinue = async () => {
-    if (telegramId && piAmount && imageUrl) {
-      try {
-        const response = await fetch('/api/piamount', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            telegramId,
-            amount: piAmount,
-            imageUrl: imageUrl,
-            piaddress: piAddress,
-            isPending: true
-          })
-        });
-        
-        if (response.ok) {
-          setHasStoredAddress(true);
-          setIsEditingAddress(false);
-          setIsPending(true);
-          router.push('/summary');
-        }
-      } catch (error) {
-        console.error('Error saving pi amount:', error);
+  if (telegramId && piAmount && imageUrl) {
+    try {
+      const response = await fetch('/api/piamount', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegramId,
+          amount: piAmount,
+          imageUrl: imageUrl,
+          piaddress: piAddress,
+          isPending: true  // Make sure this is being sent
+        })
+      });
+      
+      if (response.ok) {
+        setHasStoredAddress(true);
+        setIsEditingAddress(false);
+        setIsPending(true);  // Update local state
+        router.push('/summary');
       }
+    } catch (error) {
+      console.error('Error saving pi amount:', error);
     }
-  };
+  }
+};
 
   const isButtonEnabled = piAmount && imageUploaded && piAddress;
 
