@@ -99,14 +99,15 @@ const PaymentProof = () => {
   };
 
   const handleContinue = async () => {
-    if (telegramId && piAmount) {
+    if (telegramId && piAmount && imageUrl) {
       try {
         const response = await fetch('/api/piamount', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             telegramId,
-            amount: piAmount
+            amount: piAmount,
+            imageUrl: imageUrl
           })
         });
         
