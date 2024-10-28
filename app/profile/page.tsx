@@ -59,7 +59,7 @@ const Profile = () => {
       });
       const userData = await response.json();
       
-      const totalPiSold = userData.finalpis.reduce((sum: number, amount1: number) => sum + amount1, 0);
+      const totalPiSold = userData.finalpis.reduce((sum: number, amount: number) => sum + amount, 0);
       const xp = totalPiSold;
       const currentLevel = getCurrentLevel(xp);
       const piPoints = calculatePiPoints(xp, currentLevel);
