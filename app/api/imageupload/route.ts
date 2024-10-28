@@ -1,4 +1,3 @@
-// app/api/imageupload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { uploadToCloudinary, validateImage } from '@/utils/cloudinary';
@@ -18,7 +17,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate the image
     const validation = validateImage({
       size: file.size,
       type: file.type
@@ -31,13 +29,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert file to buffer
     const buffer = Buffer.from(await file.arrayBuffer());
+    const { publicUrl } = await uploadToCloudinary(buffer, file.name);
 
-    // Upload to Cloudinary
-     const { publicUrl } = await uploadToCloudinary(buffer, file.name);
-
-    // Update database with short URL
+    // Only update the temporary imageUrl
     await prisma.user.update({
       where: { telegramId },
       data: {
@@ -48,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      imageUrl: publicUrl // Return public URL for display
+      imageUrl: publicUrl
     });
   } catch (error) {
     console.error('Error processing upload:', error);
@@ -61,7 +56,6 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    // Get telegramId from the URL search params instead of request body
     const searchParams = request.nextUrl.searchParams;
     const telegramId = parseInt(searchParams.get('telegramId') || '');
 
