@@ -20,11 +20,21 @@ interface User {
   istransaction: boolean
 }
 
+// New interface to store the snapshot of transaction details
+interface TransactionSnapshot {
+  piAmount: number
+  paymentMethod: string
+  paymentAddress: string
+  timestamp: Date
+}
+
 export default function TransactionHistory() {
   const [user, setUser] = useState<User | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
+  // New state to store transaction snapshots
+  const [transactionHistory, setTransactionHistory] = useState<TransactionSnapshot[]>([])
 
   useEffect(() => {
     setMounted(true)
@@ -48,6 +58,26 @@ export default function TransactionHistory() {
               setError(data.error)
             } else {
               setUser(data)
+              // Create snapshots of transactions if they don't exist
+              if (data.piAmount) {
+                const currentSnapshots = [...transactionHistory]
+                const newSnapshots: TransactionSnapshot[] = []
+                
+                data.piAmount.forEach((amount: number, index: number) => {
+                  if (index >= currentSnapshots.length) {
+                    newSnapshots.push({
+                      piAmount: amount,
+                      paymentMethod: data.paymentMethod,
+                      paymentAddress: data.paymentAddress,
+                      timestamp: new Date()
+                    })
+                  }
+                })
+                
+                if (newSnapshots.length > 0) {
+                  setTransactionHistory(prev => [...newSnapshots, ...prev])
+                }
+              }
             }
           })
           .catch((err) => {
@@ -110,10 +140,13 @@ export default function TransactionHistory() {
             No transactions yet
           </div>
         ) : (
-          [...user.piAmount].reverse().map((amount, index) => {
-            // Store the first transaction's status
+          user.piAmount.map((amount, index) => {
             const isFirstTransaction = index === 0
-            const transactionStatus = isFirstTransaction ? user.istransaction : false
+            const snapshot = transactionHistory[user.piAmount.length - 1 - index] || {
+              paymentMethod: user.paymentMethod,
+              paymentAddress: user.paymentAddress,
+              timestamp: new Date()
+            }
 
             return (
               <div 
@@ -131,23 +164,30 @@ export default function TransactionHistory() {
                 
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600">Payment:</span>
-                  <span className="font-medium">{user.paymentMethod}</span>
+                  <span className="font-medium">{snapshot.paymentMethod}</span>
                 </div>
                 
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600">Address:</span>
-                  <span className="font-medium text-right truncate max-w-[200px]">{user.paymentAddress}</span>
+                  <span className="font-medium text-right truncate max-w-[200px]">
+                    {snapshot.paymentAddress}
+                  </span>
                 </div>
                 
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600">Status:</span>
-                  <span className={`font-medium ${isFirstTransaction && transactionStatus ? 'text-yellow-500' : 'text-green-500'}`}>
-                    {isFirstTransaction && transactionStatus ? 'Pending' : 'Completed'}
+                  <span className={`font-medium ${isFirstTransaction && user.istransaction ? 'text-yellow-500' : 'text-green-500'}`}>
+                    {isFirstTransaction && user.istransaction ? 'Pending' : 'Completed'}
                   </span>
+                </div>
+
+                <div className="flex justify-between items-center text-xs text-gray-500">
+                  <span>{snapshot.timestamp.toLocaleDateString()}</span>
+                  <span>{snapshot.timestamp.toLocaleTimeString()}</span>
                 </div>
               </div>
             )
-          })
+          }).reverse()
         )}
       </div>
 
