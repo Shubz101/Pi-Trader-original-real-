@@ -14,6 +14,7 @@ const PaymentProof = () => {
   const [piAddress, setPiAddress] = useState<string>('');
   const [hasStoredAddress, setHasStoredAddress] = useState<boolean>(false);
   const [isEditingAddress, setIsEditingAddress] = useState<boolean>(false);
+  const [isPending, setIsPending] = useState<boolean>(false);
   const walletAddress = 'GHHHjJhGgGfFfHjIuYrDc';
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -38,6 +39,7 @@ const PaymentProof = () => {
       const userData = await response.json();
       setImageUploaded(userData.isUpload || false);
       setImageUrl(userData.imageUrl || null);
+      setIsPending(userData.isPending || false);
       if (userData.piaddress) {
         setPiAddress(userData.piaddress);
         setHasStoredAddress(true);
@@ -115,13 +117,15 @@ const PaymentProof = () => {
             telegramId,
             amount: piAmount,
             imageUrl: imageUrl,
-            piaddress: piAddress
+            piaddress: piAddress,
+            isPending: true
           })
         });
         
         if (response.ok) {
           setHasStoredAddress(true);
           setIsEditingAddress(false);
+          setIsPending(true);
           router.push('/summary');
         }
       } catch (error) {
@@ -258,7 +262,7 @@ const PaymentProof = () => {
             </div>
           </div>
 
-          {/* Continue Button */}
+           {/* Continue Button */}
           <div className="mt-8 flex justify-end">
             <button
               onClick={handleContinue}
