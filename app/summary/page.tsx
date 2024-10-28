@@ -16,7 +16,7 @@ interface UserData {
   piAmount: number[]
   paymentMethod: string
   paymentAddress: string
-  PiAddress: string
+  piaddress: string
 }
 
 export default function Summary() {
@@ -132,7 +132,7 @@ export default function Summary() {
             <div className="flex justify-between items-center border-b pb-2">
               <span className="text-gray-600">Pi Wallet Address:</span>
               <span className="font-semibold text-[#670773] break-all text-sm">
-                {userData?.PiAddress || 'N/A'}
+                {userData?.piaddress || 'N/A'}
               </span>
             </div>
           </div>
