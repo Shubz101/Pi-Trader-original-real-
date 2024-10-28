@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 import './payment.css';
 
 interface PaymentMethod {
@@ -12,9 +13,6 @@ interface PaymentMethod {
   badge?: string;
 }
 
-// Removed the problematic global declaration
-// We'll just use type assertion when accessing Telegram.WebApp
-
 const PaymentOptions: React.FC = () => {
   const router = useRouter();
   const [visibleInput, setVisibleInput] = useState<string | null>(null);
@@ -23,6 +21,7 @@ const PaymentOptions: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [telegramId, setTelegramId] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const paymentMethods: PaymentMethod[] = [
     {
@@ -53,7 +52,7 @@ const PaymentOptions: React.FC = () => {
   ];
 
   useEffect(() => {
-    // Using type assertion to avoid TypeScript errors
+    setMounted(true);
     const tg = (window as any).Telegram?.WebApp;
     if (tg) {
       const webAppUser = tg.initDataUnsafe?.user;
@@ -149,19 +148,26 @@ const PaymentOptions: React.FC = () => {
   const canContinue = isConnected;
 
   return (
-    <div className="payment-container">
+    <div className={`payment-container bg-gradient-to-b from-gray-50 to-gray-100 ${mounted ? 'fade-in' : ''}`}>
+      <Script src="https://kit.fontawesome.com/18e66d329f.js" />
+      
+      <div className="custom-purple text-white p-4 flex items-center justify-between shadow-lg slide-down">
+        <i 
+          className="fas fa-arrow-left header-icon clickable" 
+          onClick={handleBack}
+        ></i>
+        <h1 className="text-2xl font-bold">Pi Trader Official</h1>
+        <div></div>
+      </div>
+
       <div className="payment-content">
         <div className="payment-header">
-          <i 
-            className="fas fa-arrow-left header-icon clickable" 
-            onClick={handleBack}
-          ></i>
-          <h1 className="header-title">Payment Methods</h1>
+          <h2 className="text-xl font-semibold custom-purple-text mb-4 fade-in-up">Select Payment Method</h2>
         </div>
 
         <div className="payment-methods-list">
-          {paymentMethods.map(({ id, label, placeholder, image, badge }) => (
-            <div key={id}>
+          {paymentMethods.map(({ id, label, placeholder, image, badge }, index) => (
+            <div key={id} className="payment-method-wrapper" style={{animationDelay: `${index * 0.1}s`}}>
               <div
                 className={`payment-method-box ${
                   isConnected && selectedPayment === id
@@ -187,7 +193,7 @@ const PaymentOptions: React.FC = () => {
               </div>
 
               {visibleInput === id && !isConnected && (
-                <div className="payment-input-container">
+                <div className="payment-input-container fade-in">
                   <input
                     type="text"
                     placeholder={placeholder}
@@ -201,7 +207,7 @@ const PaymentOptions: React.FC = () => {
           ))}
         </div>
 
-        <div className="connect-button-container">
+        <div className="connect-button-container slide-up">
           <button
             className={`connect-button ${
               (canConnect || isConnected) ? 'button-active' : 'button-disabled'
@@ -214,7 +220,7 @@ const PaymentOptions: React.FC = () => {
         </div>
       </div>
 
-      <div className="bottom-buttons">
+      <div className="bottom-buttons slide-up">
         <button 
           className="cancel-button"
           onClick={handleBack}
