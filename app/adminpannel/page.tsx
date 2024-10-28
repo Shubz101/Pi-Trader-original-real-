@@ -1,8 +1,4 @@
-'use client'
-
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
 
 // Type definition for our user data
 type User = {
@@ -42,7 +38,7 @@ export default function PaymentCardsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </div>
     );
   }
@@ -61,35 +57,34 @@ export default function PaymentCardsPage() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {users.map((user) => (
-          <Card key={user.telegramId} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="text-xl">
-                {user.username || `User ${user.telegramId}`}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="font-medium">Telegram ID:</span>
-                  <span>{user.telegramId}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Payment Method:</span>
-                  <span>{user.paymentMethod || 'Not specified'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Payment Address:</span>
-                  <span className="text-right break-all">
-                    {user.paymentAddress || 'Not specified'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Pi Amount:</span>
-                  <span>{user.piAmount[user.piAmount.length - 1] || 0} Pi</span>
-                </div>
+          <div 
+            key={user.telegramId} 
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+          >
+            <h2 className="text-xl font-semibold mb-4">
+              {user.username || `User ${user.telegramId}`}
+            </h2>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="font-medium">Telegram ID:</span>
+                <span>{user.telegramId}</span>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex justify-between">
+                <span className="font-medium">Payment Method:</span>
+                <span>{user.paymentMethod || 'Not specified'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Payment Address:</span>
+                <span className="text-right break-all">
+                  {user.paymentAddress || 'Not specified'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Pi Amount:</span>
+                <span>{user.piAmount[user.piAmount.length - 1] || 0} Pi</span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
       
