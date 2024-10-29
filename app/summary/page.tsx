@@ -15,9 +15,9 @@ declare global {
 
 interface UserData {
   piAmount: number[]
-  paymentMethod: string
-  paymentAddress: string
-  piaddress: string
+  paymentMethod: string[]
+  paymentAddress: string[]
+  piaddress: string[]
 }
 
 export default function Summary() {
