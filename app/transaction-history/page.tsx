@@ -19,7 +19,6 @@ interface Transaction {
   paymentAddress: string
   status: string
   piAddress: string
-  amountToReceive: number
 }
 
 interface User {
@@ -33,6 +32,45 @@ interface User {
   totalPiSold: number
   xp: number
   baseprice: number
+}
+
+const getPaymentBonus = (paymentMethod: string): number => {
+  switch (paymentMethod.toLowerCase()) {
+    case 'paypal':
+      return 0.28
+    case 'googlepay':
+      return 0.25
+    case 'applepay':
+      return 0.15
+    case 'mastercard':
+      return 0
+    default:
+      return 0
+  }
+}
+
+const getLevelBonus = (level: number): number => {
+  switch (level) {
+    case 2:
+      return 0.01
+    case 3:
+      return 0.03
+    case 4:
+      return 0.05
+    case 5:
+      return 0.07
+    case 6:
+      return 0.01
+    default:
+      return 0
+  }
+}
+
+const calculateAmount = (piAmount: number, paymentMethod: string, level: number, baseprice: number): number => {
+  const paymentBonus = getPaymentBonus(paymentMethod)
+  const levelBonus = getLevelBonus(level)
+  const pricePerPi = baseprice + paymentBonus + levelBonus
+  return piAmount * pricePerPi
 }
 
 export default function TransactionHistory() {
@@ -119,36 +157,6 @@ export default function TransactionHistory() {
     }
   }
 
-  const getPaymentBonus = (paymentMethod: string): number => {
-    switch (paymentMethod.toLowerCase()) {
-      case 'paypal':
-        return 0.28;
-      case 'googlepay':
-        return 0.25;
-      case 'applepay':
-        return 0.15;
-      default:
-        return 0;
-    }
-  }
-
-  const getLevelBonus = (level: number): number => {
-    switch (level) {
-      case 2:
-        return 0.01;
-      case 3:
-        return 0.03;
-      case 4:
-        return 0.05;
-      case 5:
-        return 0.07;
-      case 6:
-        return 0.1;
-      default:
-        return 0;
-    }
-  }
-
   if (loading) {
     return (
       <div className="container mx-auto p-4 flex items-center justify-center h-screen">
@@ -178,12 +186,7 @@ export default function TransactionHistory() {
     paymentMethod: user.paymentMethod[index] || '',
     paymentAddress: user.paymentAddress[index] || '',
     status: user.transactionStatus[index] || 'processing',
-    piAddress: user.piaddress[index] || '',
-    amountToReceive: (
-      user.baseprice +
-      getPaymentBonus(user.paymentMethod[index] || '') +
-      getLevelBonus(user.level)
-    ) * amount
+    piAddress: user.piaddress[index] || ''
   }))
 
   return (
@@ -208,7 +211,7 @@ export default function TransactionHistory() {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Total Pi Sold:</span>
-            <span className="font-bold custom-purple-text">{user.piAmount.reduce((total, amount) => total + amount, 0)} Pi</span>
+            <span className="font-bold custom-purple-text">{user.totalPiSold} Pi</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Points:</span>
@@ -230,6 +233,12 @@ export default function TransactionHistory() {
           [...transactions].reverse().map((transaction, index) => {
             const statusInfo = getStatusInfo(transaction.status)
             const isExpanded = expandedCards.includes(index)
+            const amount = calculateAmount(
+              transaction.piAmount, 
+              transaction.paymentMethod, 
+              user.level,
+              user.baseprice
+            )
             
             return (
               <div 
@@ -247,7 +256,7 @@ export default function TransactionHistory() {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Amount to Receive:</span>
                     <span className="font-bold custom-purple-text">
-                      ${transaction.amountToReceive.toFixed(2)}
+                      ${amount.toFixed(2)}
                     </span>
                   </div>
                   
@@ -294,7 +303,63 @@ export default function TransactionHistory() {
       </div>
 
       <style jsx>{`
-        // Same styles as before
+        .custom-purple {
+          background-color: #670773;
+        }
+        .custom-purple-text {
+          color: #670773;
+        }
+        .loading-spinner {
+          border: 4px solid rgba(103, 7, 115, 0.1);
+          border-left-color: #670773;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .fade-in {
+          opacity: 0;
+          animation: fadeIn 0.5s ease-out forwards;
+        }
+        .fade-in-up {
+          opacity: 0;
+          transform: translateY(20px);
+          animation: fadeInUp 0.5s ease-out forwards;
+        }
+        .slide-down {
+          transform: translateY(-100%);
+          animation: slideDown 0.5s ease-out forwards;
+        }
+        .hover-scale {
+          transition: transform 0.2s ease-out;
+        }
+        .hover-scale:hover {
+          transform: scale(1.05);
+        }
+        .hover-scale:active {
+          transform: scale(0.95);
+        }
+        @keyframes fadeIn {
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes fadeInUp {
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes slideDown {
+          to {
+            transform: translateY(0);
+          }
+        }
       `}</style>
     </div>
   )
