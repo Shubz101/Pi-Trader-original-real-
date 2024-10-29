@@ -26,6 +26,7 @@ export default function TransactionHistory() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
+  const [expandedCard, setExpandedCard] = useState<number | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -66,6 +67,10 @@ export default function TransactionHistory() {
       setLoading(false)
     }
   }, [])
+
+  const toggleExpand = (index: number) => {
+    setExpandedCard(expandedCard === index ? null : index)
+  }
 
   if (loading) {
     return (
@@ -115,14 +120,16 @@ export default function TransactionHistory() {
         ) : (
           [...user.piAmount].reverse().map((amount, index) => {
             const realIndex = user.piAmount.length - 1 - index
-            const isNewestTransaction = index === 0 // Check if this is the newest transaction
-            
+            const isExpanded = expandedCard === index
+            const isFirstTransaction = index === 0
+
             return (
               <div 
                 key={index}
                 className="bg-white rounded-lg shadow-lg p-6 space-y-3 fade-in-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
+                {/* Always visible content */}
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Pi Amount Sold:</span>
                   <span className="font-bold custom-purple-text">{amount} Pi</span>
@@ -134,40 +141,46 @@ export default function TransactionHistory() {
                 </div>
                 
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Payment Method:</span>
-                  <span className="font-medium">
-                    {user.paymentMethod[realIndex] || 'Not specified'}
-                  </span>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Payment Address:</span>
-                  <span className="font-medium break-all">
-                    {user.paymentAddress[realIndex] || 'Not specified'}
+                  <span className="text-gray-600">Status:</span>
+                  <span className={`font-medium ${isFirstTransaction && user.istransaction ? 'text-yellow-500' : 'text-green-500'}`}>
+                    {isFirstTransaction && user.istransaction ? 'Processing' : 'Completed'}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Pi Address:</span>
-                  <span className="font-medium break-all">
-                    {user.piaddress[realIndex] || 'Not specified'}
-                  </span>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Status:</span>
-                  {isNewestTransaction ? (
-                    // Only the newest transaction can be "Processing"
-                    <span className={`font-medium ${user.istransaction ? 'text-yellow-500' : 'text-green-500'}`}>
-                      {user.istransaction ? 'Processing' : 'Completed'}
-                    </span>
-                  ) : (
-                    // All older transactions are always "Completed"
-                    <span className="font-medium text-green-500">
-                      Completed
-                    </span>
-                  )}
-                </div>
+                {/* Dropdown button */}
+                <button 
+                  onClick={() => toggleExpand(index)}
+                  className="w-full flex items-center justify-center p-2 mt-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+                >
+                  <span className="mr-2">View Details</span>
+                  <i className={`fas fa-chevron-${isExpanded ? 'up' : 'down'}`}></i>
+                </button>
+
+                {/* Expandable content */}
+                {isExpanded && (
+                  <div className="pt-3 space-y-3 border-t mt-3 fade-in">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Payment Method:</span>
+                      <span className="font-medium">
+                        {user.paymentMethod[realIndex] || 'Not specified'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Payment Address:</span>
+                      <span className="font-medium break-all max-w-[60%] text-right">
+                        {user.paymentAddress[realIndex] || 'Not specified'}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Pi Address:</span>
+                      <span className="font-medium break-all max-w-[60%] text-right">
+                        {user.piaddress[realIndex] || 'Not specified'}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             )
           })
