@@ -115,6 +115,8 @@ export default function TransactionHistory() {
         ) : (
           [...user.piAmount].reverse().map((amount, index) => {
             const realIndex = user.piAmount.length - 1 - index
+            const isNewestTransaction = index === 0 // Check if this is the newest transaction
+            
             return (
               <div 
                 key={index}
@@ -154,9 +156,17 @@ export default function TransactionHistory() {
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Status:</span>
-                  <span className={`font-medium ${user.istransaction ? 'text-yellow-500' : 'text-green-500'}`}>
-                    {user.istransaction ? 'Processing' : 'Completed'}
-                  </span>
+                  {isNewestTransaction ? (
+                    // Only the newest transaction can be "Processing"
+                    <span className={`font-medium ${user.istransaction ? 'text-yellow-500' : 'text-green-500'}`}>
+                      {user.istransaction ? 'Processing' : 'Completed'}
+                    </span>
+                  ) : (
+                    // All older transactions are always "Completed"
+                    <span className="font-medium text-green-500">
+                      Completed
+                    </span>
+                  )}
                 </div>
               </div>
             )
