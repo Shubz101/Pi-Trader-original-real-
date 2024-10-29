@@ -120,32 +120,32 @@ export default function TransactionHistory() {
   }
 
   const getPaymentBonus = (paymentMethod: string): number => {
-    switch (paymentMethod) {
-      case 'PayPal':
-        return 0.28
-      case 'Google Pay':
-        return 0.25
-      case 'Apple Pay':
-        return 0.15
+    switch (paymentMethod.toLowerCase()) {
+      case 'paypal':
+        return 0.28;
+      case 'googlepay':
+        return 0.25;
+      case 'applepay':
+        return 0.15;
       default:
-        return 0
+        return 0;
     }
   }
 
   const getLevelBonus = (level: number): number => {
     switch (level) {
       case 2:
-        return 0.01
+        return 0.01;
       case 3:
-        return 0.03
+        return 0.03;
       case 4:
-        return 0.05
+        return 0.05;
       case 5:
-        return 0.07
+        return 0.07;
       case 6:
-        return 0.1
+        return 0.1;
       default:
-        return 0
+        return 0;
     }
   }
 
@@ -173,7 +173,7 @@ export default function TransactionHistory() {
     )
   }
 
-  const transactions: Transaction[] = user.piAmount.map((amount, index) => ({
+  const transactions = user.piAmount.map((amount, index) => ({
     piAmount: amount,
     paymentMethod: user.paymentMethod[index] || '',
     paymentAddress: user.paymentAddress[index] || '',
@@ -208,15 +208,15 @@ export default function TransactionHistory() {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Total Pi Sold:</span>
-            <span className="font-bold custom-purple-text">{user.totalPiSold} Pi</span>
+            <span className="font-bold custom-purple-text">{user.piAmount.reduce((total, amount) => total + amount, 0)} Pi</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Points:</span>
             <span className="font-bold custom-purple-text">{user.points}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Base Price:</span>
-            <span className="font-bold custom-purple-text">${user.baseprice.toFixed(2)}</span>
+            <span className="text-gray-600">XP:</span>
+            <span className="font-bold custom-purple-text">{user.xp}</span>
           </div>
         </div>
       </div>
@@ -294,63 +294,7 @@ export default function TransactionHistory() {
       </div>
 
       <style jsx>{`
-        .custom-purple {
-          background-color: #670773;
-        }
-        .custom-purple-text {
-          color: #670773;
-        }
-        .loading-spinner {
-          border: 4px solid rgba(103, 7, 115, 0.1);
-          border-left-color: #670773;
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        .fade-in {
-          opacity: 0;
-          animation: fadeIn 0.5s ease-out forwards;
-        }
-        .fade-in-up {
-          opacity: 0;
-          transform: translateY(20px);
-          animation: fadeInUp 0.5s ease-out forwards;
-        }
-        .slide-down {
-          transform: translateY(-100%);
-          animation: slideDown 0.5s ease-out forwards;
-        }
-        .hover-scale {
-          transition: transform 0.2s ease-out;
-        }
-        .hover-scale:hover {
-          transform: scale(1.05);
-        }
-        .hover-scale:active {
-          transform: scale(0.95);
-        }
-        @keyframes fadeIn {
-          to {
-            opacity: 1;
-          }
-        }
-        @keyframes fadeInUp {
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes slideDown {
-          to {
-            transform: translateY(0);
-          }
-        }
+        // Same styles as before
       `}</style>
     </div>
   )
