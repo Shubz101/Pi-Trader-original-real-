@@ -3,7 +3,6 @@
 import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
-import { Check, Copy, CloudUpload } from 'lucide-react';
 
 const paymentMethods = [
   {
@@ -95,18 +94,6 @@ const MergedPaymentPage = () => {
     }
   };
 
-  const calculateUSDT = (pi: string): string => {
-    const amount = parseFloat(pi);
-    if (!amount) return '0.00';
-    
-    const selectedMethod = paymentMethods.find(m => m.id === selectedPayment);
-    const paymentBonus = selectedMethod?.bonus || 0;
-    const levelBonus = getLevelBonus(userLevel);
-    const totalRate = basePrice + paymentBonus + levelBonus;
-    
-    return (amount * totalRate).toFixed(2);
-  };
-
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
     if (e.target.files && e.target.files.length > 0 && telegramId) {
       const file = e.target.files[0];
@@ -158,6 +145,18 @@ const MergedPaymentPage = () => {
     } catch (error) {
       console.error('Failed to copy wallet address:', error);
     }
+  };
+
+  const calculateUSDT = (pi: string): string => {
+    const amount = parseFloat(pi);
+    if (!amount) return '0.00';
+    
+    const selectedMethod = paymentMethods.find(m => m.id === selectedPayment);
+    const paymentBonus = selectedMethod?.bonus || 0;
+    const levelBonus = getLevelBonus(userLevel);
+    const totalRate = basePrice + paymentBonus + levelBonus;
+    
+    return (amount * totalRate).toFixed(2);
   };
 
   const handleContinue = async () => {
@@ -220,7 +219,7 @@ const MergedPaymentPage = () => {
                 onClick={handleCopyAddress}
                 className="bg-[#670773] text-white p-2 rounded-lg hover:bg-[#7a1b86] transition-colors"
               >
-                {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                <i className={`fas ${copied ? 'fa-check' : 'fa-copy'} text-lg`}></i>
               </button>
             </div>
           </div>
@@ -342,8 +341,6 @@ const MergedPaymentPage = () => {
               )}
             </div>
           </div>
-
-were */}
 
           {/* Continue Button */}
           <div className="mt-8 flex justify-end">
