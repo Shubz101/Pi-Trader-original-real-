@@ -13,17 +13,11 @@ declare global {
   }
 }
 
-interface Transaction {
-  piAmount: number
-  paymentMethod: string
-  paymentAddress: string
-  istransaction: boolean
-}
-
 interface User {
   piAmount: number[]
-  paymentMethod: string
-  paymentAddress: string
+  paymentMethod: string[]
+  paymentAddress: string[]
+  piaddress: string[]
   istransaction: boolean
 }
 
@@ -139,12 +133,23 @@ export default function TransactionHistory() {
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Payment Method:</span>
-                  <span className="font-medium">{user.paymentMethod}</span>
+                  <span className="font-medium">
+                    {user.paymentMethod[realIndex] || 'Not specified'}
+                  </span>
                 </div>
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Payment Address:</span>
-                  <span className="font-medium break-all">{user.paymentAddress}</span>
+                  <span className="font-medium break-all">
+                    {user.paymentAddress[realIndex] || 'Not specified'}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Pi Address:</span>
+                  <span className="font-medium break-all">
+                    {user.piaddress[realIndex] || 'Not specified'}
+                  </span>
                 </div>
                 
                 <div className="flex justify-between items-center">
